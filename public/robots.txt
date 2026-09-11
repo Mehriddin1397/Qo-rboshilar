@@ -1,0 +1,10 @@
+User-agent: *
+Disallow: /admin
+Disallow: /kirish
+Disallow: /royxatdan-otish
+Disallow: /profil
+Disallow: /bloglarim
+Disallow: /comments
+Disallow: /qidiruv
+
+Sitemap: /sitemap.xml

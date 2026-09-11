@@ -1,0 +1,75 @@
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;0,700;1,500&family=Inter:wght@400;500;600;700&family=Cormorant+Garamond:ital,wght@0,500;1,500&display=swap');
+@import 'tailwindcss';
+
+@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
+@source '../../storage/framework/views/*.php';
+@source '../**/*.blade.php';
+@source '../**/*.js';
+
+@theme {
+    --font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif;
+    --font-serif: 'Playfair Display', ui-serif, Georgia, serif;
+    --font-quote: 'Cormorant Garamond', ui-serif, Georgia, serif;
+
+    --color-ink: #1a1512;
+    --color-paper: #fbf6ec;
+    --color-paper-dark: #efe4ce;
+    --color-brown-900: #3b2a1d;
+    --color-brown-700: #6b4a32;
+    --color-brown-500: #8c6845;
+    --color-gold-600: #a6791e;
+    --color-gold-400: #c9a227;
+    --color-sand: #e4d6b8;
+    --color-danger: #8b2e2e;
+    --color-success: #3f6b3f;
+}
+
+body {
+    background-color: var(--color-paper);
+    color: var(--color-ink);
+}
+
+[x-cloak] {
+    display: none !important;
+}
+
+/* Interaktiv xarita — MapLibre popup'larini sayt dizayn tizimiga moslashtirish */
+.maplibregl-popup-content {
+    background-color: var(--color-paper);
+    border: 1px solid var(--color-sand);
+    border-radius: 0.5rem;
+    padding: 0.75rem 1rem;
+    box-shadow: 0 4px 12px rgba(26, 21, 18, 0.15);
+    font-family: var(--font-sans);
+}
+
+.map-popup-title {
+    font-family: var(--font-serif);
+    font-weight: 600;
+    color: var(--color-brown-900);
+    font-size: 0.95rem;
+}
+
+.map-popup-meta {
+    color: var(--color-gold-600);
+    font-size: 0.75rem;
+    margin-top: 0.125rem;
+}
+
+.map-popup-desc {
+    color: var(--color-brown-700);
+    font-size: 0.8rem;
+    margin-top: 0.375rem;
+}
+
+.map-popup-link {
+    display: inline-block;
+    margin-top: 0.5rem;
+    font-size: 0.8rem;
+    font-weight: 500;
+    color: var(--color-gold-600);
+}
+
+.map-popup-link:hover {
+    text-decoration: underline;
+}
