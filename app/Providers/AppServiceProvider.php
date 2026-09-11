@@ -22,6 +22,10 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        if ($this->app->environment('production') || str_starts_with((string) config('app.url'), 'https://')) {
+            \Illuminate\Support\Facades\URL::forceScheme('https');
+        }
+
         // Admin-only: full CRUD over Qorboshi/Uzgolon/Literature/Video/Region/Period/
         // MapMarker/TimelineEvent/HistoricalMapLayer/User — enforced in each entity's Policy,
         // this Gate is the coarse-grained check used by admin route middleware.
