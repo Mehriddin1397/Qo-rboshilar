@@ -13,23 +13,47 @@
         ];
     @endphp
 
-    <section class="border-b border-sand bg-brown-900 py-12 text-center">
-        <x-ui.container class="max-w-3xl">
-            <x-ui.breadcrumb class="mb-4 justify-center text-paper-dark/70" :items="$breadcrumbItems" />
+    @php
+        $heroBackground = $uzgolon->backgroundImageUrl() ?? $uzgolon->coverImageUrl();
+    @endphp
+
+    <section class="relative border-b border-sand bg-brown-900 py-14 sm:py-20 text-center overflow-hidden">
+        @if ($heroBackground)
+            <div class="absolute inset-0 z-0">
+                <img src="{{ $heroBackground }}" alt="{{ $uzgolon->name }}" class="h-full w-full object-cover object-center filter brightness-40">
+                <div class="absolute inset-0 bg-gradient-to-b from-brown-950/85 via-brown-900/80 to-brown-950/95"></div>
+            </div>
+        @endif
+
+        <x-ui.container class="relative z-10 max-w-3xl">
+            <x-ui.breadcrumb class="mb-4 justify-center text-paper-dark/80" :items="$breadcrumbItems" />
             <x-seo.breadcrumb-jsonld :items="$breadcrumbItems" />
 
-            <h1 class="font-serif text-3xl font-semibold text-paper sm:text-4xl">{{ $uzgolon->name }}</h1>
-            <p class="mt-2 text-paper-dark/80">{{ $uzgolon->short_description }}</p>
+            <h1 class="font-serif text-3xl font-semibold text-paper sm:text-4xl lg:text-5xl drop-shadow-sm">{{ $uzgolon->name }}</h1>
+            <p class="mt-3 text-base sm:text-lg text-paper-dark/90 leading-relaxed drop-shadow-sm">{{ $uzgolon->short_description }}</p>
 
-            <div class="mt-4 flex flex-wrap justify-center gap-2 text-sm text-paper-dark/70">
-                <span>{{ $uzgolon->start_year }}@if($uzgolon->end_year)–{{ $uzgolon->end_year }}@endif</span>
+            <div class="mt-5 flex flex-wrap justify-center items-center gap-3 text-sm text-paper-dark/85">
+                <span class="inline-flex items-center gap-1.5 rounded-full bg-paper/10 px-3 py-1 backdrop-blur-xs">
+                    <svg class="h-4 w-4 text-gold-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                    <span>{{ $uzgolon->start_year }}@if($uzgolon->end_year)–{{ $uzgolon->end_year }}@endif</span>
+                </span>
                 @if ($uzgolon->region)
-                    <span>&middot;</span>
-                    <span>{{ $uzgolon->region->name }}</span>
+                    <span class="inline-flex items-center gap-1.5 rounded-full bg-paper/10 px-3 py-1 backdrop-blur-xs">
+                        <svg class="h-4 w-4 text-gold-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                        </svg>
+                        <span>{{ $uzgolon->region->name }}</span>
+                    </span>
                 @endif
                 @if ($uzgolon->period)
-                    <span>&middot;</span>
-                    <span>{{ $uzgolon->period->name }}</span>
+                    <span class="inline-flex items-center gap-1.5 rounded-full bg-paper/10 px-3 py-1 backdrop-blur-xs">
+                        <svg class="h-4 w-4 text-gold-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <span>{{ $uzgolon->period->name }}</span>
+                    </span>
                 @endif
             </div>
         </x-ui.container>
@@ -117,17 +141,202 @@
                 @endif
 
                 @if ($uzgolon->images->isNotEmpty())
-                    <section>
-                        <x-ui.section-header title="Tarixiy suratlar" />
-                        <div class="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3">
-                            @foreach ($uzgolon->images as $image)
-                                <figure>
-                                    <img src="{{ $image->url() }}" alt="{{ $image->alt_text ?? $uzgolon->name }}" loading="lazy" class="h-32 w-full rounded-md object-cover">
-                                    @if ($image->caption)
-                                        <figcaption class="mt-1 text-xs text-brown-500">{{ $image->caption }}</figcaption>
-                                    @endif
-                                </figure>
-                            @endforeach
+                    <section
+                        x-data="{
+                            current: 0,
+                            total: {{ $uzgolon->images->count() }},
+                            timer: null,
+                            isPaused: false,
+                            lightboxOpen: false,
+                            lightboxImage: '',
+                            lightboxCaption: '',
+                            next() {
+                                if (this.total > 1) {
+                                    this.current = (this.current + 1) % this.total;
+                                }
+                            },
+                            prev() {
+                                if (this.total > 1) {
+                                    this.current = (this.current - 1 + this.total) % this.total;
+                                }
+                            },
+                            goTo(index) {
+                                this.current = index;
+                            },
+                            openLightbox(url, caption) {
+                                this.lightboxImage = url;
+                                this.lightboxCaption = caption;
+                                this.lightboxOpen = true;
+                                this.isPaused = true;
+                            },
+                            closeLightbox() {
+                                this.lightboxOpen = false;
+                                this.isPaused = false;
+                            },
+                            startAutoplay() {
+                                if (this.total > 1) {
+                                    this.timer = setInterval(() => {
+                                        if (!this.isPaused && !this.lightboxOpen) {
+                                            this.next();
+                                        }
+                                    }, 4500);
+                                }
+                            },
+                            stopAutoplay() {
+                                if (this.timer) {
+                                    clearInterval(this.timer);
+                                    this.timer = null;
+                                }
+                            }
+                        }"
+                        x-init="startAutoplay()"
+                        @mouseenter="isPaused = true"
+                        @mouseleave="isPaused = false"
+                        @keydown.escape.window="closeLightbox()"
+                        class="space-y-4"
+                    >
+                        <div class="flex items-center justify-between">
+                            <x-ui.section-header title="Tarixiy suratlar" />
+                            @if ($uzgolon->images->count() > 1)
+                                <div class="flex items-center gap-2 text-xs font-medium text-brown-600 bg-sand/40 px-3 py-1.5 rounded-full">
+                                    <span class="inline-block h-2 w-2 rounded-full bg-gold-600 animate-pulse"></span>
+                                    <span x-text="(current + 1) + ' / ' + total"></span>
+                                </div>
+                            @endif
+                        </div>
+
+                        {{-- Asosiy katta slayd konteyneri --}}
+                        <div class="relative overflow-hidden rounded-xl border border-sand bg-brown-950 shadow-md">
+                            <div class="relative h-72 sm:h-[400px] md:h-[460px] lg:h-[500px] w-full">
+                                @foreach ($uzgolon->images as $index => $image)
+                                    <div
+                                        x-show="current === {{ $index }}"
+                                        x-transition:enter="transition ease-out duration-700"
+                                        x-transition:enter-start="opacity-0 scale-95"
+                                        x-transition:enter-end="opacity-100 scale-100"
+                                        x-transition:leave="transition ease-in duration-300"
+                                        x-transition:leave-start="opacity-100"
+                                        x-transition:leave-end="opacity-0"
+                                        class="absolute inset-0 flex items-center justify-center bg-brown-950"
+                                    >
+                                        {{-- Orqa fonda blur qilingan effekt --}}
+                                        <div class="absolute inset-0 overflow-hidden opacity-30">
+                                            <img src="{{ $image->url() }}" alt="" class="h-full w-full object-cover filter blur-xl scale-110">
+                                        </div>
+
+                                        {{-- Asosiy katta surat --}}
+                                        <img
+                                            src="{{ $image->url() }}"
+                                            alt="{{ $image->alt_text ?? $image->caption ?? $uzgolon->name }}"
+                                            class="relative z-10 max-h-full max-w-full object-contain cursor-zoom-in transition-transform duration-300 hover:scale-[1.01]"
+                                            @click="openLightbox('{{ $image->url() }}', '{{ addslashes($image->caption ?? $image->alt_text ?? $uzgolon->name) }}')"
+                                        >
+
+                                        {{-- Surat pastidagi ma'lumot (caption, yil, manba) --}}
+                                        <div class="absolute bottom-0 inset-x-0 z-20 bg-gradient-to-t from-brown-950/95 via-brown-950/70 to-transparent p-4 sm:p-5 text-paper">
+                                            <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-2">
+                                                <div class="max-w-2xl">
+                                                    @if ($image->caption)
+                                                        <p class="text-sm sm:text-base font-medium text-paper leading-snug">{{ $image->caption }}</p>
+                                                    @endif
+                                                    <div class="mt-1 flex flex-wrap items-center gap-3 text-xs text-paper-dark/80">
+                                                        @if ($image->year)
+                                                            <span>Yil: <strong class="text-gold-400">{{ $image->year }}</strong></span>
+                                                        @endif
+                                                        @if ($image->source)
+                                                            <span>Manba: {{ $image->source }}</span>
+                                                        @endif
+                                                        @if ($image->copyright)
+                                                            <span>Mualliflik: {{ $image->copyright }}</span>
+                                                        @endif
+                                                    </div>
+                                                </div>
+
+                                                <button
+                                                    type="button"
+                                                    @click="openLightbox('{{ $image->url() }}', '{{ addslashes($image->caption ?? $image->alt_text ?? $uzgolon->name) }}')"
+                                                    class="inline-flex items-center gap-1.5 self-start sm:self-auto rounded-md bg-paper/20 hover:bg-paper/30 px-3 py-1.5 text-xs text-paper backdrop-blur-xs transition"
+                                                >
+                                                    <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
+                                                    </svg>
+                                                    Kattalashtirish
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                @endforeach
+                            </div>
+
+                            {{-- Oldinga / Orqaga boshqaruv tugmalari --}}
+                            @if ($uzgolon->images->count() > 1)
+                                <button
+                                    type="button"
+                                    @click="prev()"
+                                    aria-label="Oldingi surat"
+                                    class="absolute left-3 top-1/2 -translate-y-1/2 z-30 rounded-full bg-brown-900/70 p-2.5 text-paper hover:bg-brown-900 hover:text-gold-400 backdrop-blur-xs shadow-lg transition"
+                                >
+                                    <svg class="h-5 w-5 sm:h-6 sm:w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7" />
+                                    </svg>
+                                </button>
+                                <button
+                                    type="button"
+                                    @click="next()"
+                                    aria-label="Keyingi surat"
+                                    class="absolute right-3 top-1/2 -translate-y-1/2 z-30 rounded-full bg-brown-900/70 p-2.5 text-paper hover:bg-brown-900 hover:text-gold-400 backdrop-blur-xs shadow-lg transition"
+                                >
+                                    <svg class="h-5 w-5 sm:h-6 sm:w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7" />
+                                    </svg>
+                                </button>
+                            @endif
+                        </div>
+
+                        {{-- Pastki miniaturalar (Thumbnails) va pagination dots --}}
+                        @if ($uzgolon->images->count() > 1)
+                            <div class="flex items-center gap-2 overflow-x-auto pb-2 pt-1">
+                                @foreach ($uzgolon->images as $index => $image)
+                                    <button
+                                        type="button"
+                                        @click="goTo({{ $index }})"
+                                        :class="current === {{ $index }} ? 'ring-2 ring-gold-600 scale-105 opacity-100' : 'opacity-60 hover:opacity-100'"
+                                        class="relative h-16 w-24 shrink-0 overflow-hidden rounded-md border border-sand bg-brown-900 transition-all duration-200"
+                                    >
+                                        <img src="{{ $image->url() }}" alt="" class="h-full w-full object-cover">
+                                    </button>
+                                @endforeach
+                            </div>
+                        @endif
+
+                        {{-- Lightbox Modal --}}
+                        <div
+                            x-show="lightboxOpen"
+                            x-cloak
+                            x-transition:enter="transition ease-out duration-300"
+                            x-transition:enter-start="opacity-0"
+                            x-transition:enter-end="opacity-100"
+                            x-transition:leave="transition ease-in duration-200"
+                            x-transition:leave-start="opacity-100"
+                            x-transition:leave-end="opacity-0"
+                            class="fixed inset-0 z-50 flex flex-col items-center justify-center bg-brown-950/95 p-4 backdrop-blur-md"
+                            @click.self="closeLightbox()"
+                        >
+                            <button
+                                type="button"
+                                @click="closeLightbox()"
+                                class="absolute top-4 right-4 rounded-full bg-paper/10 p-2 text-paper hover:bg-paper/20 transition"
+                                aria-label="Yopish"
+                            >
+                                <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                </svg>
+                            </button>
+
+                            <div class="max-h-[85vh] max-w-[95vw] flex flex-col items-center">
+                                <img :src="lightboxImage" alt="" class="max-h-[75vh] max-w-full rounded-lg object-contain shadow-2xl">
+                                <p x-show="lightboxCaption" x-text="lightboxCaption" class="mt-3 text-center text-sm sm:text-base text-paper-dark max-w-2xl"></p>
+                            </div>
                         </div>
                     </section>
                 @endif

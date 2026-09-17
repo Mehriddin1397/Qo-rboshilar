@@ -33,7 +33,7 @@ class StoreHistoricalMapLayerRequest extends FormRequest
             'period_id' => ['nullable', 'exists:periods,id'],
             'historical_region_id' => ['nullable', 'exists:historical_regions,id'],
 
-            'image' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:10240'],
+            'image' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:20480'],
 
             // §22-23: image overlay uchun georeference chegaralari — HistoricalMapLayer
             // rasm-asosli (raster) qatlam bo'lsa MapLibre ImageSource'ga to'g'ridan-to'g'ri

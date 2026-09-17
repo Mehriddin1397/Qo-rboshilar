@@ -47,7 +47,7 @@ class StoreVideoRequest extends FormRequest
             'meta_title' => ['nullable', 'string', 'max:255'],
             'meta_description' => ['nullable', 'string', 'max:255'],
 
-            'thumbnail' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
+            'thumbnail' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:20480'],
 
             'source_reference_ids' => ['nullable', 'array'],
             'source_reference_ids.*' => ['exists:source_references,id'],

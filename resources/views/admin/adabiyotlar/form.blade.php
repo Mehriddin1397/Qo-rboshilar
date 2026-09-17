@@ -53,7 +53,7 @@
                         <img src="{{ $literature->coverUrl() }}" alt="" class="mt-2 h-32 w-24 rounded object-cover">
                     @endif
                     <input type="file" name="cover" accept="image/jpeg,image/png,image/webp" class="mt-2 block text-sm text-brown-700">
-                    <p class="mt-1 text-xs text-brown-500">JPG/PNG/WEBP, maksimal 4MB.</p>
+                    <p class="mt-1 text-xs text-brown-500">JPG/PNG/WEBP, maksimal 20MB.</p>
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-brown-900">PDF fayl</label>

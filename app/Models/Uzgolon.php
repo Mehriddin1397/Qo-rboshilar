@@ -33,6 +33,7 @@ class Uzgolon extends Model
         'results',
         'historical_significance',
         'cover_image',
+        'background_image',
         'region_id',
         'period_id',
         'historical_location',
@@ -72,6 +73,11 @@ class Uzgolon extends Model
     public function coverImageUrl(): ?string
     {
         return $this->cover_image ? Storage::disk('public')->url($this->cover_image) : null;
+    }
+
+    public function backgroundImageUrl(): ?string
+    {
+        return $this->background_image ? Storage::disk('public')->url($this->background_image) : null;
     }
 
     public function region(): BelongsTo

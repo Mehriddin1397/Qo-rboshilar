@@ -42,7 +42,7 @@
                 <img src="{{ $blog->coverUrl() }}" alt="" class="h-32 w-48 rounded object-cover">
             @endif
             <input type="file" name="cover" accept="image/jpeg,image/png,image/webp" class="mt-2 block text-sm text-brown-700">
-            <p class="mt-1 text-xs text-brown-500">JPG/PNG/WEBP, maksimal 6MB.</p>
+            <p class="mt-1 text-xs text-brown-500">JPG/PNG/WEBP, maksimal 20MB.</p>
         </x-ui.card>
 
         <x-ui.card title="Tarixiy bog'lanishlar">

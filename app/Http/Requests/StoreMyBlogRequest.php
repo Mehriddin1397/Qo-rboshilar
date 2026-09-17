@@ -36,7 +36,7 @@ class StoreMyBlogRequest extends FormRequest
             'excerpt' => ['nullable', 'string', 'max:500'],
             'content' => ['required', 'string'],
 
-            'cover' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:6144'],
+            'cover' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:20480'],
 
             'qorboshi_ids' => ['nullable', 'array'],
             'qorboshi_ids.*' => ['exists:qorboshilar,id'],

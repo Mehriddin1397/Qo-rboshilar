@@ -122,6 +122,12 @@ class UzgolonController extends Controller
             $uzgolon->update(['cover_image' => $this->mediaService->storeCover($uzgolon, $request->file('cover'))]);
         }
 
+        if ($request->boolean('remove_background')) {
+            $this->mediaService->deleteBackground($uzgolon);
+        } elseif ($request->hasFile('background')) {
+            $uzgolon->update(['background_image' => $this->mediaService->storeBackground($uzgolon, $request->file('background'))]);
+        }
+
         foreach ($request->file('gallery', []) as $file) {
             $this->mediaService->addGalleryImage($uzgolon, $file);
         }

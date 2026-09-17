@@ -20,6 +20,23 @@ class UzgolonMediaService
         return $file->store('uzgolonlar/covers', self::DISK);
     }
 
+    public function storeBackground(Uzgolon $uzgolon, UploadedFile $file): string
+    {
+        if ($uzgolon->background_image) {
+            Storage::disk(self::DISK)->delete($uzgolon->background_image);
+        }
+
+        return $file->store('uzgolonlar/backgrounds', self::DISK);
+    }
+
+    public function deleteBackground(Uzgolon $uzgolon): void
+    {
+        if ($uzgolon->background_image) {
+            Storage::disk(self::DISK)->delete($uzgolon->background_image);
+            $uzgolon->update(['background_image' => null]);
+        }
+    }
+
     /**
      * @param  array{caption?: string, source?: string, source_url?: string, copyright?: string, year?: int, alt_text?: string}  $meta
      */
@@ -43,6 +60,10 @@ class UzgolonMediaService
     {
         if ($uzgolon->cover_image) {
             Storage::disk(self::DISK)->delete($uzgolon->cover_image);
+        }
+
+        if ($uzgolon->background_image) {
+            Storage::disk(self::DISK)->delete($uzgolon->background_image);
         }
 
         foreach ($uzgolon->images as $image) {

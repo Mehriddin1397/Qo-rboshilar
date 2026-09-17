@@ -52,7 +52,7 @@ class StoreTimelineEventRequest extends FormRequest
             'featured' => ['nullable', 'boolean'],
             'sort_order' => ['nullable', 'integer', 'min:0', 'max:9999'],
 
-            'image' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:6144'],
+            'image' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:20480'],
 
             'source_reference_ids' => ['nullable', 'array'],
             'source_reference_ids.*' => ['exists:source_references,id'],

@@ -50,9 +50,9 @@ class StoreQorboshiRequest extends FormRequest
             'meta_title' => ['nullable', 'string', 'max:255'],
             'meta_description' => ['nullable', 'string', 'max:255'],
 
-            'portrait' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:4096'],
+            'portrait' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:20480'],
             'gallery' => ['nullable', 'array'],
-            'gallery.*' => ['image', 'mimes:jpg,jpeg,png,webp', 'max:6144'],
+            'gallery.*' => ['image', 'mimes:jpg,jpeg,png,webp', 'max:20480'],
 
             'uzgolon_ids' => ['nullable', 'array'],
             'uzgolon_ids.*' => ['exists:uzgolonlar,id'],

@@ -42,7 +42,7 @@ class StoreLiteratureRequest extends FormRequest
             'meta_title' => ['nullable', 'string', 'max:255'],
             'meta_description' => ['nullable', 'string', 'max:255'],
 
-            'cover' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:4096'],
+            'cover' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:20480'],
             'file' => ['nullable', 'file', 'mimes:pdf', 'max:20480'],
 
             'qorboshi_ids' => ['nullable', 'array'],

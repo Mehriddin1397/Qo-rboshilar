@@ -112,7 +112,7 @@
                 <label class="block text-sm font-medium text-brown-900">Muqova (portret)</label>
                 <img src="{{ $qorboshi->portraitUrl() }}" alt="" class="mt-2 h-24 w-24 rounded-full object-cover">
                 <input type="file" name="portrait" accept="image/jpeg,image/png,image/webp" class="mt-2 block text-sm text-brown-700">
-                <p class="mt-1 text-xs text-brown-500">JPG, PNG yoki WEBP, maksimal 4MB.</p>
+                <p class="mt-1 text-xs text-brown-500">JPG, PNG yoki WEBP, maksimal 20MB.</p>
             </div>
 
             @if ($qorboshi->exists && $qorboshi->images->isNotEmpty())
@@ -138,7 +138,7 @@
             <div class="mt-5 border-t border-sand pt-4">
                 <label class="block text-sm font-medium text-brown-900">Yangi galereya rasmlarini qo'shish</label>
                 <input type="file" name="gallery[]" multiple accept="image/jpeg,image/png,image/webp" class="mt-2 block text-sm text-brown-700">
-                <p class="mt-1 text-xs text-brown-500">Bir nechta rasm tanlash mumkin, har biri maksimal 6MB.</p>
+                <p class="mt-1 text-xs text-brown-500">Bir nechta rasm tanlash mumkin, har biri maksimal 20MB.</p>
             </div>
         </x-ui.card>
 

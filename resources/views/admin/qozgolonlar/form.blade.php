@@ -124,12 +124,28 @@
 
         <x-ui.card title="Rasmlar">
             <div>
-                <label class="block text-sm font-medium text-brown-900">Muqova rasmi</label>
+                <label class="block text-sm font-medium text-brown-900">Muqova rasmi (kartochka va ro'yxatlar uchun)</label>
                 @if ($uzgolon->coverImageUrl())
                     <img src="{{ $uzgolon->coverImageUrl() }}" alt="" class="mt-2 h-24 w-36 rounded object-cover">
                 @endif
                 <input type="file" name="cover" accept="image/jpeg,image/png,image/webp" class="mt-2 block text-sm text-brown-700">
-                <p class="mt-1 text-xs text-brown-500">JPG, PNG yoki WEBP, maksimal 4MB.</p>
+                <p class="mt-1 text-xs text-brown-500">JPG, PNG yoki WEBP, maksimal 20MB.</p>
+            </div>
+
+            <div class="mt-5 border-t border-sand pt-4">
+                <label class="block text-sm font-medium text-brown-900">Ichki sahifa orqa fon rasmi (Header background)</label>
+                <p class="text-xs text-brown-500">Qo'zg'olon sahifasining yuqori (header/banner) qismi orqa foni uchun ishlatiladi. Tavsiya: 1920x600 yoki 16:9 keng formatdagi sifatli rasm.</p>
+                @if ($uzgolon->backgroundImageUrl())
+                    <div class="mt-2 flex items-start gap-4">
+                        <img src="{{ $uzgolon->backgroundImageUrl() }}" alt="Orqa fon" class="h-24 w-48 rounded border border-sand object-cover">
+                        <label class="flex items-center gap-2 pt-2 text-sm text-danger">
+                            <input type="checkbox" name="remove_background" value="1" class="rounded border-sand text-danger focus:ring-danger">
+                            Mavjud orqa fon rasmini o'chirish
+                        </label>
+                    </div>
+                @endif
+                <input type="file" name="background" accept="image/jpeg,image/png,image/webp" class="mt-2 block text-sm text-brown-700">
+                <p class="mt-1 text-xs text-brown-500">JPG, PNG yoki WEBP, maksimal 20MB.</p>
             </div>
 
             @if ($uzgolon->exists && $uzgolon->images->isNotEmpty())
@@ -154,7 +170,7 @@
             <div class="mt-5 border-t border-sand pt-4">
                 <label class="block text-sm font-medium text-brown-900">Yangi galereya rasmlarini qo'shish</label>
                 <input type="file" name="gallery[]" multiple accept="image/jpeg,image/png,image/webp" class="mt-2 block text-sm text-brown-700">
-                <p class="mt-1 text-xs text-brown-500">Bir nechta rasm tanlash mumkin, har biri maksimal 6MB.</p>
+                <p class="mt-1 text-xs text-brown-500">Bir nechta rasm tanlash mumkin, har biri maksimal 20MB.</p>
             </div>
         </x-ui.card>
 

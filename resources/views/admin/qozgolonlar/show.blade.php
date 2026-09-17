@@ -17,6 +17,12 @@
             @if ($uzgolon->coverImageUrl())
                 <img src="{{ $uzgolon->coverImageUrl() }}" alt="{{ $uzgolon->name }}" class="h-40 w-full rounded-md object-cover">
             @endif
+            @if ($uzgolon->backgroundImageUrl())
+                <div class="mt-3">
+                    <p class="mb-1 text-xs text-brown-500">Header orqa fon rasmi:</p>
+                    <img src="{{ $uzgolon->backgroundImageUrl() }}" alt="{{ $uzgolon->name }} background" class="h-24 w-full rounded-md object-cover border border-sand">
+                </div>
+            @endif
             <div class="mt-4 flex justify-center gap-2">
                 <x-ui.badge :color="$uzgolon->status->value === 'published' ? 'success' : 'neutral'">{{ $uzgolon->status->label() }}</x-ui.badge>
                 @if ($uzgolon->featured)
