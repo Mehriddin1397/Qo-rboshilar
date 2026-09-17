@@ -1,8 +1,5 @@
-import { Map, NavigationControl, LngLatBounds } from 'maplibre-gl';
-import 'maplibre-gl/dist/maplibre-gl.css';
-
-const DEFAULT_STYLE = 'https://demotiles.maplibre.org/style.json';
-const FALLBACK_CENTER = [64.5, 41.2];
+import { SvgMap } from './svg-map';
+import { UZBEKISTAN_BOUNDS, MAP_ATTRIBUTION, addUzbekistanRegionsLayer } from './constants';
 
 /**
  * Faza 12 §32-33: admin panelda GeoJSON qatorini ko'rish uchun oddiy, xavfsiz preview.
@@ -17,18 +14,17 @@ export function initGeoJsonPreview(containerId, geojson) {
     const container = document.getElementById(containerId);
     if (!container || !geojson) return null;
 
-    const map = new Map({
-        container: containerId,
-        style: DEFAULT_STYLE,
-        center: FALLBACK_CENTER,
-        zoom: 4,
+    const bounds = boundsFromGeojson(geojson) ?? UZBEKISTAN_BOUNDS;
+
+    const map = new SvgMap(containerId, {
+        bounds,
         interactive: true,
-        attributionControl: { compact: true },
+        attribution: MAP_ATTRIBUTION,
     });
 
-    map.addControl(new NavigationControl({ showCompass: false }), 'top-right');
-
     map.on('load', () => {
+        addUzbekistanRegionsLayer(map);
+
         map.addSource('preview', { type: 'geojson', data: geojson });
 
         map.addLayer({
@@ -53,37 +49,41 @@ export function initGeoJsonPreview(containerId, geojson) {
             filter: ['==', ['geometry-type'], 'Point'],
             paint: { 'circle-radius': 6, 'circle-color': '#A6791E' },
         });
-
-        try {
-            const bounds = new LngLatBounds();
-            let hasCoords = false;
-
-            const extend = (coords) => {
-                if (typeof coords[0] === 'number') {
-                    bounds.extend(coords);
-                    hasCoords = true;
-                } else {
-                    coords.forEach(extend);
-                }
-            };
-
-            const features = geojson.type === 'FeatureCollection' ? geojson.features
-                : geojson.type === 'Feature' ? [geojson]
-                : [{ geometry: geojson }];
-
-            features.forEach((feature) => {
-                if (feature?.geometry?.coordinates) {
-                    extend(feature.geometry.coordinates);
-                }
-            });
-
-            if (hasCoords) {
-                map.fitBounds(bounds, { padding: 40, maxZoom: 9 });
-            }
-        } catch (e) {
-            // Preview — fitBounds ishlamasa ham xarita bazaviy view bilan ko'rinadi.
-        }
     });
 
     return map;
+}
+
+function boundsFromGeojson(geojson) {
+    try {
+        let west = Infinity, south = Infinity, east = -Infinity, north = -Infinity;
+        let hasCoords = false;
+
+        const extend = (coords) => {
+            if (typeof coords[0] === 'number') {
+                const [lng, lat] = coords;
+                west = Math.min(west, lng); east = Math.max(east, lng);
+                south = Math.min(south, lat); north = Math.max(north, lat);
+                hasCoords = true;
+            } else {
+                coords.forEach(extend);
+            }
+        };
+
+        const features = geojson.type === 'FeatureCollection' ? geojson.features
+            : geojson.type === 'Feature' ? [geojson]
+            : [{ geometry: geojson }];
+
+        features.forEach((feature) => {
+            if (feature?.geometry?.coordinates) extend(feature.geometry.coordinates);
+        });
+
+        if (!hasCoords) return null;
+
+        const padLng = Math.max((east - west) * 0.2, 0.5);
+        const padLat = Math.max((north - south) * 0.2, 0.5);
+        return [[west - padLng, south - padLat], [east + padLng, north + padLat]];
+    } catch (e) {
+        return null;
+    }
 }

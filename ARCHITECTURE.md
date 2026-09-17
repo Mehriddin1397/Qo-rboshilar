@@ -448,7 +448,9 @@ copy-paste qilinmaydi (§29 talabi).
 
 ## 12. Interaktiv xarita arxitekturasi
 
-- **Kutubxona:** MapLibre GL JS (CDN yoki npm — Vite orqali bundle qilinadi).
+- **Kutubxona:** ~~MapLibre GL JS~~ — Faza 15'da **olib tashlandi**, o'z SVG
+  dvigatelimiz (`resources/js/map/svg-map.js`) bilan almashtirildi. Sabab va
+  batafsil qaror §35'da.
 - **Ma'lumot oqimi:** `MapController@index` → `MapService` → `MapMarker::with('uzgolon')`
   → GeoJSON `FeatureCollection`ga aylantiriladi → Blade view'ga `json_encode` qilib
   `data-markers` attribute yoki `<script type="application/json">` orqali uzatiladi →
@@ -764,10 +766,12 @@ Controller → View (Blade @js() orqali xavfsiz JSON encode)
     → MapLibre GL (npm, Vite orqali bundle qilingan — CDN emas)
 ```
 
-- **Uslub (style):** `https://demotiles.maplibre.org/style.json` — MapLibre'ning bepul,
-  API kalitisiz demo uslubi. Bu **vaqtinchalik boshlang'ich tanlov** — kelajakda tarixiy
-  Turkiston overlay/uslub bilan almashtiriladi (pastga qarang, §18.6).
-  ARCHITECTURE.md §12/13'da bu allaqachon rejalashtirilgan edi.
+- **Uslub (style):** `https://tiles.openfreemap.org/styles/positron` — OpenFreeMap
+  (bepul, API-kalitisiz, rate-limit'siz, OpenMapTiles/OSM ma'lumotlari asosida;
+  §35'ga qarang). Avvalgi `demotiles.maplibre.org` faqat quruq materik konturi
+  edi — O'zbekiston/Turkiston hududini "xarita" sifatida tanib bo'lmas edi.
+  Kelajakda tarixiy Turkiston overlay/uslub bilan qo'shimcha boyitiladi
+  (pastga qarang, §18.6), lekin bazaviy uslub allaqachon production-grade.
 - **Sahifalar:** `/xarita` (to'liq, barcha published marker + region/period filtri,
   server-side query string orqali), homepage preview (kompakt, `interactive:false`),
   qo'zg'olon detail sahifasi (bitta marker, agar mavjud bo'lsa).
@@ -1458,13 +1462,10 @@ alohida faylda yaratildi va faqat to'liq `/xarita` sahifasida ishlatiladi
   orqali UI'da "Tarixiy xarita qatlamlarini yuklashda xatolik yuz berdi."
   xabari ko'rsatiladi.
 
-### 27.7 Base map — hali TODO (§29, o'zgartirilmadi)
+### 27.7 Base map — hal qilindi (§35'ga qarang)
 
-`demotiles.maplibre.org` (Faza 9'dan) **saqlab qolindi** — bepul, API-kalitisiz,
-lekin production uchun rasman kafolatlanmagan. Pullik yoki API-kalit talab
-qiluvchi xizmat tasdiqsiz qo'shilmadi (§29 aniq taqiqlagan). Kodda `TODO`
-izohi qoldirildi (`turkestan-map.js`, `uzgolon-map.js`). Bu Faza 13 doirasidan
-tashqari — production-grade base map tanlovi kelajakdagi alohida qaror.
+`demotiles.maplibre.org` (Faza 9'dan) keyinchalik OpenFreeMap'ning `positron`
+uslubiga almashtirildi — batafsil qaror va sabab §35'da qayd etilgan.
 
 ### 27.8 Public UX
 
@@ -1932,3 +1933,83 @@ logging). Qisqacha xulosa:
 Bu bosqichda kiritilgan barcha demo ma'lumot `[DEMO]`/`[DEMO DATA]`
 prefiksi bilan aniq belgilangan va production tarixiy fakt sifatida
 ishlatilmasligi kerak.
+
+---
+
+## 35. Base map production tanlovi — MapLibre GL (WebGL)dan SVG dvigatelga o'tish
+
+Bu bo'lim ikki bosqichli qarorni qayd etadi — birinchi urinish (tile-server
+almashtirish) yetarli bo'lmadi, ikkinchi (dvigatelni almashtirish) muammoni
+tubdan hal qildi.
+
+### 35.1 Birinchi urinish: OpenFreeMap (yetarli bo'lmadi)
+
+Faza 9'dan beri ishlatilgan `https://demotiles.maplibre.org/style.json`
+MapLibre'ning rasman "demo/test uchun" uslubi — faqat quruq materik konturlarini
+chizadi (yo'l, aholi punkti nomi, relyef yo'q), shuning uchun avval
+`https://tiles.openfreemap.org/styles/positron` (bepul, API-kalitisiz
+OpenFreeMap loyihasi) bilan almashtirildi. Bu real geografik detal muammosini
+hal qildi, lekin **asosiy muammoni yechmadi**: production muhitida (institut
+kompyuterida) xarita konteyneri to'g'ri o'lchamda yaratilar, lekin ichi
+umuman bo'sh/ko'rinmas qolar edi.
+
+### 35.2 Haqiqiy sabab: WebGL/rAF ba'zi muhitlarda ishlamaydi
+
+Diagnostika shuni ko'rsatdi: **MapLibre GL — WebGL asosida ishlaydi va o'z
+render tsiklini `requestAnimationFrame`ga bog'laydi.** Ba'zi kompyuterlar/
+tarmoqlarda (uskunaviy tezlashtirish o'chirilgan, GPU cheklangan yoki
+korporativ/institut xavfsizlik siyosati) WebGL konteksti umuman ishga
+tushmaydi yoki uning render tsikli hech qachon "load" holatiga yeta olmaydi —
+natijada xarita **butunlay bo'sh, xatosiz va sukut saqlagan holda** qoladi
+(konteyner to'g'ri o'lchamda, lekin ichi hech qachon chizilmaydi). Bu eng
+oddiy, hech qanday tashqi manbaga muhtoj bo'lmagan test uslubi (bo'sh
+`sources`, bitta background layer) bilan ham qayta hosil qilindi — demak
+muammo tile-server yoki ma'lumotda emas, balki **WebGL dvigatelining o'zida**
+edi.
+
+### 35.3 Yakuniy yechim: WebGL'siz, sof SVG dvigateli
+
+MapLibre GL to'liq olib tashlandi (`npm uninstall maplibre-gl` — bundle
+hajmi ~1.1MB'dan (gzip 303KB) 128KB'ga (gzip 45KB) tushdi). O'rniga
+`resources/js/map/svg-map.js` — MapLibre'ning kichik bir API qismini
+(`addSource`/`addLayer`/`on`/`fitBounds`/`flyTo`/`Popup`/`Marker`) taqlid
+qiluvchi, lekin **oddiy SVG DOM elementlari** orqali chizadigan o'z
+dvigatelimiz yozildi:
+
+- **GPU/WebGL'ga umuman bog'liq emas** — SVG brauzerning oddiy DOM/layout
+  dvigateli orqali sinxron chiziladi, shuning uchun har qanday kompyuter/
+  brauzerda (hatto uskunaviy tezlashtirish o'chirilgan bo'lsa ham) ishlaydi.
+- **Bazaviy geografik ma'lumot:** geoBoundaries.org (OpenStreetMap asosida,
+  ODC-BY litsenziya)dan olingan O'zbekistonning 14 ta viloyat/respublika/
+  shahar chegarasi — `public/geo/uzbekistan-regions.geojson` (148KB, statik
+  fayl, loyihaning o'z serveridan xizmat qiladi, **hech qanday tashqi
+  tile-server'ga so'rov yubormaydi** — bu institut/korporativ tarmoq
+  cheklovlaridan ham butunlay mustaqil qiladi).
+- **Proyeksiya:** oddiy ekvirektangulyar proyeksiya, kenglik bo'yicha
+  `cos(o'rtacha_kenglik)` tuzatish koeffitsienti bilan (mamlakat miqyosida
+  yetarli aniqlik, murakkab Merkator hisoblash shart emas).
+- **Interaktivlik:** pan (drag), zoom (wheel + tugmalar), popup (click),
+  draggable marker — barchasi qo'lda, WebGL'siz DOM voqealari orqali
+  qayta yozildi.
+- **API moslik:** chaqiruvchi kod (`turkestan-map.js`, `uzgolon-map.js`,
+  `marker-picker.js`, `geojson-preview.js`) MapLibre'dagi bilan deyarli bir
+  xil struktura/mantiqni saqlab qoldi (`map.addSource(...)`,
+  `map.addLayer(...)`, `map.on('click', layerId, cb)`) — faqat "dvigatel"
+  almashtirildi, business-logika o'zgarmadi.
+- **Nima yo'qoldi (ataylab, hozircha kerak emas):** vektor tile-based
+  streets/joy nomlari detali (endi faqat viloyat chegaralari + markerlar);
+  murakkab proyeksiya buzilishlarini to'g'irlash. Bular hozirgi
+  "qo'zg'olon joylari + viloyat konteksti" ko'rsatish maqsadi uchun yetarli.
+
+### 35.4 Yon ta'sirda topilgan va tuzatilgan mustaqil xato
+
+`resources/views/components/admin/map-point-picker.blade.php`da
+`onChange: onMapChange` — Alpine metodini xom holda (bog'lanmagan holda)
+uzatgan, natijada `options.onChange(...)` chaqirilganda `this` Alpine
+komponentiga emas, `options` obyektiga ishora qilgan (standart JS
+"detached method" xatosi). Natijada xaritani bosib koordinata tanlash
+**hech qachon** `Latitude`/`Longitude` maydonlarini to'ldirmagan — bu xato
+MapLibre'dan oldin ham mavjud bo'lgan, faqat interaktiv brauzer testida
+(curl orqali emas) birinchi marta aniqlandi. Tuzatildi:
+`onChange: (lat, lng) => onMapChange(lat, lng)` (arrow function `this`ni
+to'g'ri ushlab qoladi).

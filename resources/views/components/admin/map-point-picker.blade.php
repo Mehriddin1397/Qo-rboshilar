@@ -26,7 +26,7 @@
         },
     }"
     x-init="picker = window.initMapMarkerPicker('{{ $id }}', {
-        latitude: lat, longitude: lng, readonly: {{ $readonly ? 'true' : 'false' }}, onChange: onMapChange,
+        latitude: lat, longitude: lng, readonly: {{ $readonly ? 'true' : 'false' }}, onChange: (lat, lng) => onMapChange(lat, lng),
     })"
 >
     <div id="{{ $id }}" class="h-80 w-full rounded-lg border border-sand"></div>

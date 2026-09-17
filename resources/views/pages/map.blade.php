@@ -17,7 +17,7 @@
 
     <section class="py-10">
         <x-ui.container>
-            <form method="GET" class="mb-6 grid gap-3 sm:grid-cols-4">
+            <form method="GET" class="mb-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
                 <select name="region" class="rounded-md border border-sand bg-white px-3 py-2 text-sm focus:border-gold-600 focus:outline-none focus:ring-1 focus:ring-gold-600" aria-label="Hudud bo'yicha filtrlash">
                     <option value="">Barcha hududlar</option>
                     @foreach ($regions as $region)
@@ -32,10 +32,26 @@
                     @endforeach
                 </select>
 
-                <x-ui.button type="submit" variant="secondary">Filtrlash</x-ui.button>
-                @if (array_filter($filters))
-                    <x-ui.button href="{{ route('xarita') }}" variant="secondary">Tozalash</x-ui.button>
-                @endif
+                <select name="qorboshi" class="rounded-md border border-sand bg-white px-3 py-2 text-sm focus:border-gold-600 focus:outline-none focus:ring-1 focus:ring-gold-600" aria-label="Qo'rboshi bo'yicha filtrlash">
+                    <option value="">Barcha qo'rboshilar</option>
+                    @foreach ($qorboshilar as $qorboshi)
+                        <option value="{{ $qorboshi->id }}" @selected((string) ($filters['qorboshi'] ?? '') === (string) $qorboshi->id)>{{ $qorboshi->full_name }}</option>
+                    @endforeach
+                </select>
+
+                <select name="uzgolon" class="rounded-md border border-sand bg-white px-3 py-2 text-sm focus:border-gold-600 focus:outline-none focus:ring-1 focus:ring-gold-600" aria-label="Qo'zg'olon bo'yicha filtrlash">
+                    <option value="">Barcha qo'zg'olonlar</option>
+                    @foreach ($uzgolonlarList as $uzgolonItem)
+                        <option value="{{ $uzgolonItem->id }}" @selected((string) ($filters['uzgolon'] ?? '') === (string) $uzgolonItem->id)>{{ $uzgolonItem->name }}</option>
+                    @endforeach
+                </select>
+
+                <div class="flex gap-2">
+                    <x-ui.button type="submit" variant="secondary">Filtrlash</x-ui.button>
+                    @if (array_filter($filters))
+                        <x-ui.button href="{{ route('xarita') }}" variant="secondary">Tozalash</x-ui.button>
+                    @endif
+                </div>
             </form>
 
             @if (empty($geojson['features']) && empty($historicalRegions['features']) && empty($historicalLayers['features']) && empty($rasterLayers) && empty($timelineEvents['features']))
@@ -64,6 +80,7 @@
                         }, {
                             onError: (message) => { this.mapError = message; },
                             focusEventSlug: @js($focusEventSlug),
+                            highlightPoints: @js($highlightPoints),
                         });
                         this.hasRaster = this.mapInstance?.hasRasterLayers ?? false;
                         this.loaded = true;
@@ -93,7 +110,7 @@
                 <div class="relative">
                     <div
                         id="turkestan-map"
-                        class="h-[420px] w-full rounded-lg border border-sand sm:h-[560px]"
+                        class="h-[520px] w-full rounded-lg border border-sand sm:h-[680px] lg:h-[760px]"
                     ></div>
 
                     <div x-show="!loaded" class="absolute inset-0 flex items-center justify-center rounded-lg bg-paper-dark/70 text-sm text-brown-700">
@@ -151,6 +168,16 @@
                             <div class="sm:col-span-1 lg:col-span-3">
                                 <p class="text-xs font-medium uppercase tracking-wide text-brown-500">Legenda</p>
                                 <ul class="mt-2 space-y-2 text-sm text-brown-700">
+                                    @if (!empty($highlightPoints))
+                                        <li class="flex items-center gap-2">
+                                            <span class="h-3 w-3 rounded-sm border-2" style="border-color: #A6791E; background-color: transparent;" aria-hidden="true"></span>
+                                            Tanlangan qo'rboshi/qo'zg'olon hududi
+                                        </li>
+                                    @endif
+                                    <li class="flex items-center gap-2">
+                                        <span class="h-3 w-3 rounded-sm" style="background-color: #C9855A; opacity: 0.6;" aria-hidden="true"></span>
+                                        Viloyat (har biri o'z rangida)
+                                    </li>
                                     <li class="flex items-center gap-2">
                                         <span class="h-3 w-3 rounded-sm" style="background-color: #A6791E; opacity: 0.4;" aria-hidden="true"></span>
                                         Tarixiy hudud

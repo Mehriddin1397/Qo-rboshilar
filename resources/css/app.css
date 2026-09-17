@@ -33,14 +33,104 @@ body {
     display: none !important;
 }
 
-/* Interaktiv xarita — MapLibre popup'larini sayt dizayn tizimiga moslashtirish */
-.maplibregl-popup-content {
+/* Interaktiv xarita — SVG asosida (WebGL/GPU'ga bog'liq emas, §35 ga qarang) */
+/* Diqqat: bu yerda width/height ATAYLAB berilmagan — konteynerning o'lchami
+   to'liq Tailwind utility klasslari orqali (masalan h-[520px]) belgilanadi;
+   bu yerda height:100% qo'yilsa, teng spetsifiklik tufayli CSS tartib
+   bo'yicha Tailwind utility'ni bekor qilib qo'yardi. */
+.svg-map {
+    position: relative;
+    background-color: var(--color-paper);
+    border-radius: 0.5rem;
+}
+
+.svg-map svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+    border-radius: 0.5rem;
+    cursor: grab;
+    touch-action: none;
+}
+
+.svg-map svg:active {
+    cursor: grabbing;
+}
+
+.svg-map-controls {
+    position: absolute;
+    top: 0.5rem;
+    right: 0.5rem;
+    z-index: 10;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.svg-map-controls button {
+    width: 1.75rem;
+    height: 1.75rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--color-paper);
+    border: 1px solid var(--color-sand);
+    border-radius: 0.25rem;
+    color: var(--color-brown-900);
+    font-size: 1rem;
+    line-height: 1;
+    cursor: pointer;
+}
+
+.svg-map-controls button:hover {
+    background: var(--color-sand);
+}
+
+.svg-map-attribution {
+    position: absolute;
+    bottom: 0.125rem;
+    right: 0.375rem;
+    z-index: 5;
+    font-size: 0.625rem;
+    color: var(--color-brown-500);
+    background: rgba(251, 246, 236, 0.7);
+    padding: 0 0.25rem;
+    border-radius: 0.125rem;
+    pointer-events: none;
+}
+
+.svg-map-marker {
+    position: absolute;
+    z-index: 15;
+    width: 1rem;
+    height: 1rem;
+    border-radius: 9999px;
+    border: 2px solid var(--color-paper);
+    box-shadow: 0 1px 4px rgba(26, 21, 18, 0.4);
+    transform: translate(-50%, -50%);
+}
+
+.svg-map-popup {
+    position: absolute;
+    z-index: 20;
+    transform: translate(-50%, calc(-100% - 14px));
     background-color: var(--color-paper);
     border: 1px solid var(--color-sand);
     border-radius: 0.5rem;
     padding: 0.75rem 1rem;
     box-shadow: 0 4px 12px rgba(26, 21, 18, 0.15);
     font-family: var(--font-sans);
+    max-width: 280px;
+}
+
+.svg-map-popup-close {
+    position: absolute;
+    top: 0.25rem;
+    right: 0.5rem;
+    cursor: pointer;
+    color: var(--color-brown-500);
+    font-size: 1rem;
+    line-height: 1;
 }
 
 .map-popup-title {

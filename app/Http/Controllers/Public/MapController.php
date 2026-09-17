@@ -4,7 +4,9 @@ namespace App\Http\Controllers\Public;
 
 use App\Http\Controllers\Controller;
 use App\Models\Period;
+use App\Models\Qorboshi;
 use App\Models\Region;
+use App\Models\Uzgolon;
 use App\Services\HistoricalMapService;
 use App\Services\MapMarkerService;
 use App\Services\UzgolonService;
@@ -24,6 +26,8 @@ class MapController extends Controller
     {
         $regionId = $request->integer('region') ?: null;
         $periodId = $request->integer('period') ?: null;
+        $qorboshiId = $request->integer('qorboshi') ?: null;
+        $uzgolonId = $request->integer('uzgolon') ?: null;
 
         // Qo'zg'olonning "primary" markeri UzgolonService::publicGeoJson() orqali
         // (Uzgolon-boy popup ma'lumoti bilan), qolgan mustaqil/ikkinchi darajali
@@ -47,14 +51,49 @@ class MapController extends Controller
             // Faza 14 §12: xronologiya detail sahifasidan "Xaritada ko'rish" bosilganda
             // shu voqeaga flyTo qilish uchun (frontend'da initTurkestanMap'ga uzatiladi).
             'focusEventSlug' => $request->string('event')->toString() ?: null,
+            // Faza 15 §36: Qo'rboshi/Qo'zg'olon filtri tanlanganda ularga tegishli
+            // koordinatalar (viloyat poligonini SVG tomonda "nuqta ichidami"
+            // tekshiruvi orqali maxsus belgilash uchun) — frontend'ga xom nuqta
+            // ro'yxati sifatida uzatiladi, aniq geometriyaga bog'liqlik yo'q.
+            'highlightPoints' => $this->highlightPointsFor($qorboshiId, $uzgolonId),
             'regions' => Region::orderBy('name')->get(),
             'periods' => Period::orderBy('start_year')->get(),
-            'filters' => $request->only(['region', 'period']),
+            'qorboshilar' => Qorboshi::published()->orderBy('full_name')->get(['id', 'full_name']),
+            'uzgolonlarList' => Uzgolon::published()->orderBy('name')->get(['id', 'name']),
+            'filters' => $request->only(['region', 'period', 'qorboshi', 'uzgolon']),
             'seo' => [
                 'title' => "Interaktiv xarita — Qo'rboshilar.uz",
                 'description' => "Turkiston tarixidagi qo'zg'olonlarning interaktiv xaritasi va tarixiy xarita qatlamlari.",
                 'canonical' => route('xarita'),
             ],
         ]);
+    }
+
+    /**
+     * @return array<int, array{0: float, 1: float}>
+     */
+    private function highlightPointsFor(?int $qorboshiId, ?int $uzgolonId): array
+    {
+        $points = [];
+
+        if ($qorboshiId) {
+            $qorboshi = Qorboshi::with('uzgolonlar.primaryMarker')->find($qorboshiId);
+
+            foreach ($qorboshi?->uzgolonlar ?? [] as $uzgolon) {
+                if ($uzgolon->primaryMarker) {
+                    $points[] = [(float) $uzgolon->primaryMarker->longitude, (float) $uzgolon->primaryMarker->latitude];
+                }
+            }
+        }
+
+        if ($uzgolonId) {
+            $uzgolon = Uzgolon::with('primaryMarker')->find($uzgolonId);
+
+            if ($uzgolon?->primaryMarker) {
+                $points[] = [(float) $uzgolon->primaryMarker->longitude, (float) $uzgolon->primaryMarker->latitude];
+            }
+        }
+
+        return $points;
     }
 }

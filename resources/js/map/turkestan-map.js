@@ -1,12 +1,5 @@
-import { Map, NavigationControl, Popup, LngLatBounds } from 'maplibre-gl';
-import 'maplibre-gl/dist/maplibre-gl.css';
-
-// TODO (Faza 14/production): demotiles.maplibre.org — API-kalitisiz, bepul demo
-// uslub, Faza 9'dan beri vaqtinchalik. Litsenziyasi/barqarorligi production uchun
-// kafolatlanmagan. Pullik yoki API-kalit talab qiluvchi xizmat tasdiqsiz
-// qo'shilmaydi (Faza 13 §29) — shuning uchun hozircha saqlanadi.
-const DEFAULT_STYLE = 'https://demotiles.maplibre.org/style.json';
-const FALLBACK_CENTER = [64.5, 41.2];
+import { SvgMap, Popup } from './svg-map';
+import { UZBEKISTAN_BOUNDS, MAP_ATTRIBUTION, addUzbekistanRegionsLayer, highlightRegionsForPoints } from './constants';
 
 const BRAND_GOLD = '#A6791E';
 const BRAND_BROWN = '#6B4A32';
@@ -86,6 +79,10 @@ function emptyFeatureCollection() {
     return { type: 'FeatureCollection', features: [] };
 }
 
+// Data-driven uzuq chiziq: geometriya "verified" deb belgilanmagan bo'lsa
+// taxminiy chegara indikatori (§23, §41 — false precision yaratilmasin).
+const accuracyDasharray = (props) => (props.accuracyStatus === 'verified' ? null : [4, 3]);
+
 /**
  * @param {string} containerId
  * @param {{
@@ -95,7 +92,7 @@ function emptyFeatureCollection() {
  *   rasterLayers: Array<{id:number,title:string,imageUrl:string,bounds:{north:number,south:number,east:number,west:number},opacity:number}>,
  *   timelineEvents: object,
  * }} data - barchasi Laravel tomonidan @js() orqali server-rendered
- * @param {{onError?: (message: string) => void, focusEventSlug?: string}} [options]
+ * @param {{onError?: (message: string) => void, focusEventSlug?: string, highlightPoints?: Array<[number, number]>}} [options]
  */
 export function initTurkestanMap(containerId, data, options = {}) {
     const container = document.getElementById(containerId);
@@ -110,29 +107,35 @@ export function initTurkestanMap(containerId, data, options = {}) {
     let map;
 
     try {
-        map = new Map({
-            container: containerId,
-            style: DEFAULT_STYLE,
-            center: FALLBACK_CENTER,
-            zoom: markers.features?.length ? 5.5 : 4.5,
-            attributionControl: { compact: true },
+        map = new SvgMap(containerId, {
+            bounds: UZBEKISTAN_BOUNDS,
+            interactive: true,
+            attribution: MAP_ATTRIBUTION,
         });
     } catch (e) {
         options.onError?.('Xarita bazasini yuklashda xatolik yuz berdi.');
         return null;
     }
 
-    map.addControl(new NavigationControl({ showCompass: false }), 'top-right');
-
     map.on('error', (event) => {
         // Bitta manba/tile xatosi butun xaritani yiqitmasin (§59) — faqat log.
-        console.warn('MapLibre xatosi:', event?.error?.message ?? event);
+        console.warn('Xarita xatosi:', event?.error?.message ?? event);
     });
 
     const raster = { addedIds: [] };
 
     map.on('load', () => {
         try {
+            // 0) O'zbekiston viloyat chegaralari — eng pastki (bazaviy) qatlam,
+            // hech qanday tashqi tile-server'ga muhtoj emas (§35).
+            addUzbekistanRegionsLayer(map);
+
+            // 0.1) Qo'rboshi/Qo'zg'olon filtri tanlangan bo'lsa — tegishli
+            // hudud(lar) oltin chegara bilan maxsus belgilanadi (§36).
+            if (options.highlightPoints?.length) {
+                highlightRegionsForPoints(map, options.highlightPoints);
+            }
+
             // 1) Tarixiy hududlar (fill + outline) — pastki qatlam.
             map.addSource('historical-regions', { type: 'geojson', data: historicalRegions });
             map.addLayer({
@@ -148,9 +151,7 @@ export function initTurkestanMap(containerId, data, options = {}) {
                 paint: {
                     'line-color': BRAND_GOLD,
                     'line-width': 1.5,
-                    // Data-driven: "verified" bo'lmasa uzuq chiziq — taxminiy chegara
-                    // indikatori (§23, §41 — false precision yaratilmasin).
-                    'line-dasharray': ['case', ['==', ['get', 'accuracyStatus'], 'verified'], ['literal', [1, 0]], ['literal', [2, 2]]],
+                    'line-dasharray': accuracyDasharray,
                 },
             });
 
@@ -164,7 +165,7 @@ export function initTurkestanMap(containerId, data, options = {}) {
                 paint: {
                     'line-color': BRAND_BROWN,
                     'line-width': 2,
-                    'line-dasharray': ['case', ['==', ['get', 'accuracyStatus'], 'verified'], ['literal', [1, 0]], ['literal', [2, 2]]],
+                    'line-dasharray': accuracyDasharray,
                 },
             });
 
@@ -293,15 +294,17 @@ export function initTurkestanMap(containerId, data, options = {}) {
             }
 
             // Barcha mavjud nuqta/geometriyalarga moslab fitBounds — lekin faqat
-            // bitta voqeaga focus qilinmagan bo'lsa (aks holda flyTo natijasini
-            // darhol bekor qilib qo'yardi).
-            if (!options.focusEventSlug) {
-                const bounds = new LngLatBounds();
+            // bitta voqeaga focus qilinmagan yoki hudud highlight qilinmagan
+            // bo'lsa (aks holda ularning natijasini darhol bekor qilib qo'yardi).
+            if (!options.focusEventSlug && !options.highlightPoints?.length) {
+                let west = Infinity, south = Infinity, east = -Infinity, north = -Infinity;
                 let hasBounds = false;
 
                 const extend = (coords) => {
                     if (typeof coords[0] === 'number') {
-                        bounds.extend(coords);
+                        const [lng, lat] = coords;
+                        west = Math.min(west, lng); east = Math.max(east, lng);
+                        south = Math.min(south, lat); north = Math.max(north, lat);
                         hasBounds = true;
                     } else {
                         coords.forEach(extend);
@@ -317,7 +320,14 @@ export function initTurkestanMap(containerId, data, options = {}) {
                 });
 
                 if (hasBounds) {
-                    map.fitBounds(bounds, { padding: 60, maxZoom: 9 });
+                    const padLng = Math.max((east - west) * 0.15, 0.3);
+                    const padLat = Math.max((north - south) * 0.15, 0.3);
+                    map.fitBounds([[west - padLng, south - padLat], [east + padLng, north + padLat]], { padding: 60 });
+                } else {
+                    // Hech qanday geometriya yo'q (masalan tanlangan davr uchun
+                    // ma'lumot kiritilmagan) — bo'sh dunyo xaritasi o'rniga
+                    // O'zbekiston hududini ko'rsatadi.
+                    map.fitBounds(UZBEKISTAN_BOUNDS, { padding: 20 });
                 }
             }
         } catch (e) {
@@ -328,8 +338,8 @@ export function initTurkestanMap(containerId, data, options = {}) {
     return {
         map,
         /**
-         * Layer switcher checkboxlari shu orqali MapLibre layer'larni
-         * ko'rsatadi/yashiradi — server so'rovi kerak emas (§16).
+         * Layer switcher checkboxlari shu orqali qatlamlarni ko'rsatadi/yashiradi
+         * — server so'rovi kerak emas (§16).
          */
         setLayerVisibility(layerIds, visible) {
             (Array.isArray(layerIds) ? layerIds : [layerIds]).forEach((layerId) => {

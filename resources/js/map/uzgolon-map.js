@@ -1,16 +1,5 @@
-// maplibre-gl@6 default export'ni olib tashladi (faqat named exportlar) — bu Faza 9'da
-// yozilgandan keyin package.json'dagi "^6.7.0" bilan bog'liq holda paydo bo'lgan mavjud
-// build xatosi edi (Faza 12 buni tuzatdi, chunki u umuman `npm run build`ni blokladi).
-import { Map, NavigationControl, Popup, LngLatBounds } from 'maplibre-gl';
-import 'maplibre-gl/dist/maplibre-gl.css';
-
-// MapLibre'ning o'z bepul demo uslubi — API kalitisiz ishlaydi. Faza 9 — birinchi
-// ishlaydigan versiya; kelajakda bu shu yerga tarixiy Turkiston overlay/uslub bilan
-// almashtiriladi (ARCHITECTURE.md §18 ga qarang).
-const DEFAULT_STYLE = 'https://demotiles.maplibre.org/style.json';
-
-// Turkiston mintaqasi taxminiy markazi — hech qanday marker bo'lmaganda fallback.
-const FALLBACK_CENTER = [64.5, 41.2];
+import { SvgMap, Popup } from './svg-map';
+import { UZBEKISTAN_BOUNDS, MAP_ATTRIBUTION, addUzbekistanRegionsLayer } from './constants';
 
 function escapeHtml(value) {
     if (!value) return '';
@@ -39,10 +28,29 @@ function buildPopupHtml(props) {
     `;
 }
 
+/** Nuqtalar to'plamidan (biror padding bilan) bounding box hisoblaydi. */
+function boundsFromFeatures(features) {
+    if (features.length === 1) {
+        const [lng, lat] = features[0].geometry.coordinates;
+        return [[lng - 1.5, lat - 1.5], [lng + 1.5, lat + 1.5]];
+    }
+
+    let west = Infinity, south = Infinity, east = -Infinity, north = -Infinity;
+    features.forEach((f) => {
+        const [lng, lat] = f.geometry.coordinates;
+        west = Math.min(west, lng); east = Math.max(east, lng);
+        south = Math.min(south, lat); north = Math.max(north, lat);
+    });
+
+    const padLng = Math.max((east - west) * 0.15, 0.3);
+    const padLat = Math.max((north - south) * 0.15, 0.3);
+    return [[west - padLng, south - padLat], [east + padLng, north + padLat]];
+}
+
 /**
  * @param {string} containerId
  * @param {{type: string, features: array}} geojson - qo'zg'olon markerlari (server-rendered)
- * @param {{zoom?: number, interactive?: boolean, fitBounds?: boolean}} options
+ * @param {{interactive?: boolean}} options
  */
 export function initUzgolonMap(containerId, geojson, options = {}) {
     const container = document.getElementById(containerId);
@@ -50,25 +58,18 @@ export function initUzgolonMap(containerId, geojson, options = {}) {
 
     const features = geojson?.features ?? [];
     const interactive = options.interactive !== false;
-    const center = features.length ? features[0].geometry.coordinates : FALLBACK_CENTER;
+    const bounds = features.length ? boundsFromFeatures(features) : UZBEKISTAN_BOUNDS;
 
-    const map = new Map({
-        container: containerId,
-        style: DEFAULT_STYLE,
-        center,
-        zoom: options.zoom ?? (features.length ? 5.5 : 4.5),
+    const map = new SvgMap(containerId, {
+        bounds,
         interactive,
-        attributionControl: { compact: true },
+        attribution: MAP_ATTRIBUTION,
     });
 
-    if (interactive) {
-        map.addControl(new NavigationControl({ showCompass: false }), 'top-right');
-    }
-
     map.on('load', () => {
-        if (features.length === 0) {
-            return;
-        }
+        addUzbekistanRegionsLayer(map);
+
+        if (features.length === 0) return;
 
         map.addSource('qozgolonlar', { type: 'geojson', data: geojson });
 
@@ -90,17 +91,11 @@ export function initUzgolonMap(containerId, geojson, options = {}) {
         map.on('click', 'qozgolonlar-points', (event) => {
             const feature = event.features[0];
 
-            new Popup({ closeButton: true, offset: 12 })
+            new Popup({ closeButton: true })
                 .setLngLat(feature.geometry.coordinates.slice())
                 .setHTML(buildPopupHtml(feature.properties))
                 .addTo(map);
         });
-
-        if (features.length > 1 && options.fitBounds !== false) {
-            const bounds = new LngLatBounds();
-            features.forEach((feature) => bounds.extend(feature.geometry.coordinates));
-            map.fitBounds(bounds, { padding: 60, maxZoom: 9 });
-        }
     });
 
     return map;

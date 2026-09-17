@@ -1,8 +1,6 @@
-import { Map, NavigationControl, Marker } from 'maplibre-gl';
-import 'maplibre-gl/dist/maplibre-gl.css';
+import { SvgMap, Marker } from './svg-map';
+import { UZBEKISTAN_CENTER, MAP_ATTRIBUTION, addUzbekistanRegionsLayer } from './constants';
 
-const DEFAULT_STYLE = 'https://demotiles.maplibre.org/style.json';
-const FALLBACK_CENTER = [64.5, 41.2];
 const BRAND_GOLD = '#A6791E';
 
 function round(value) {
@@ -25,18 +23,16 @@ export function initMapMarkerPicker(containerId, options = {}) {
     const hasInitial = typeof options.latitude === 'number' && !Number.isNaN(options.latitude)
         && typeof options.longitude === 'number' && !Number.isNaN(options.longitude);
     const readonly = !!options.readonly;
-    const center = hasInitial ? [options.longitude, options.latitude] : FALLBACK_CENTER;
+    const center = hasInitial ? [options.longitude, options.latitude] : UZBEKISTAN_CENTER;
+    const pad = hasInitial ? 1 : 4.5;
 
-    const map = new Map({
-        container: containerId,
-        style: DEFAULT_STYLE,
-        center,
-        zoom: hasInitial ? 8 : 4.5,
+    const map = new SvgMap(containerId, {
+        bounds: [[center[0] - pad, center[1] - pad], [center[0] + pad, center[1] + pad]],
         interactive: true,
-        attributionControl: { compact: true },
+        attribution: MAP_ATTRIBUTION,
     });
 
-    map.addControl(new NavigationControl({ showCompass: false }), 'top-right');
+    map.on('load', () => addUzbekistanRegionsLayer(map));
 
     let marker = null;
 
@@ -63,10 +59,10 @@ export function initMapMarkerPicker(containerId, options = {}) {
     });
 
     if (!readonly) {
-        map.on('click', (event) => {
-            placeMarker([event.lngLat.lng, event.lngLat.lat]);
-            options.onChange?.(round(event.lngLat.lat), round(event.lngLat.lng));
-        });
+        map._onMapClick = (lngLat) => {
+            placeMarker([lngLat.lng, lngLat.lat]);
+            options.onChange?.(round(lngLat.lat), round(lngLat.lng));
+        };
     }
 
     return {
@@ -78,7 +74,7 @@ export function initMapMarkerPicker(containerId, options = {}) {
             }
 
             placeMarker([lng, lat]);
-            map.flyTo({ center: [lng, lat] });
+            map.fitBounds([[lng - 1, lat - 1], [lng + 1, lat + 1]], { padding: 20 });
         },
     };
 }
