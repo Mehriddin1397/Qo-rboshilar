@@ -296,16 +296,34 @@ export class SvgMap {
             }
 
             if (layer.type === 'circle') {
+                const featureIndex = String(features.indexOf(feature));
+
                 forEachCoordinate(feature.geometry, ([lng, lat]) => {
                     const [x, y] = this._project(lng, lat);
+                    const radius = resolve(layer.paint?.['circle-radius'], props) ?? 6;
+
+                    // Ko'rinadigan nuqta kichkina bo'lganda (masalan xarita
+                    // kichraytirilganda) uni aniq bosish qiyin bo'ladi —
+                    // shuning uchun ko'zga ko'rinmas, lekin kattaroq "bosish
+                    // maydoni" alohida qo'shiladi (foydalanuvchi tajribasi
+                    // uchun, vizual ko'rinishga ta'sir qilmaydi).
+                    const hitArea = document.createElementNS(SVG_NS, 'circle');
+                    hitArea.setAttribute('cx', x.toFixed(2));
+                    hitArea.setAttribute('cy', y.toFixed(2));
+                    hitArea.setAttribute('r', String(Math.max(radius + 10, 16)));
+                    hitArea.setAttribute('fill', 'transparent');
+                    hitArea.dataset.featureIndex = featureIndex;
+                    group.appendChild(hitArea);
+
                     const circle = document.createElementNS(SVG_NS, 'circle');
                     circle.setAttribute('cx', x.toFixed(2));
                     circle.setAttribute('cy', y.toFixed(2));
-                    circle.setAttribute('r', String(resolve(layer.paint?.['circle-radius'], props) ?? 6));
+                    circle.setAttribute('r', String(radius));
                     circle.setAttribute('fill', resolve(layer.paint?.['circle-color'], props) ?? '#A6791E');
                     circle.setAttribute('stroke', resolve(layer.paint?.['circle-stroke-color'], props) ?? 'none');
                     circle.setAttribute('stroke-width', String(resolve(layer.paint?.['circle-stroke-width'], props) ?? 0));
                     circle.setAttribute('vector-effect', 'non-scaling-stroke');
+                    circle.dataset.featureIndex = featureIndex;
                     group.appendChild(circle);
                 });
             }

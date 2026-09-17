@@ -18,9 +18,11 @@ function buildPopupHtml(props) {
         ? `${props.startYear}–${props.endYear}`
         : `${props.startYear ?? ''}`;
 
+    const title = `<p class="map-popup-title">${escapeHtml(props.title)}</p>`;
+
     return `
         <div class="map-popup">
-            <p class="map-popup-title">${escapeHtml(props.title)}</p>
+            ${props.url ? `<a href="${props.url}" class="map-popup-title-link">${title}</a>` : title}
             <p class="map-popup-meta">${escapeHtml(yearRange)}${props.region ? ' · ' + escapeHtml(props.region) : ''}</p>
             ${props.shortDescription ? `<p class="map-popup-desc">${escapeHtml(truncate(props.shortDescription, 120))}</p>` : ''}
             ${props.url ? `<a href="${props.url}" class="map-popup-link">Batafsil &rarr;</a>` : ''}

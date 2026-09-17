@@ -140,6 +140,19 @@ body {
     font-size: 0.95rem;
 }
 
+/* Sarlavhaning o'zi ham ichki batafsil sahifasiga havola bo'lganda (§37) —
+   odatiy havola ko'rinishi (ko'k rang, tag chizig'i) bermaydi, faqat hover'da
+   biroz oltin rangga o'tadi, bosish mumkinligini bildirish uchun. */
+.map-popup-title-link {
+    display: block;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.map-popup-title-link:hover .map-popup-title {
+    color: var(--color-gold-600);
+}
+
 .map-popup-meta {
     color: var(--color-gold-600);
     font-size: 0.75rem;

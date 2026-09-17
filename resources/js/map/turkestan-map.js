@@ -21,7 +21,14 @@ function isSafeUrl(url) {
     }
 }
 
-function buildPopupElement(title, rows) {
+/**
+ * @param {string} title
+ * @param {Array<{label?: string, value?: string, href?: string, long?: boolean, newTab?: boolean}>} rows
+ * @param {string} [detailUrl] - mavjud bo'lsa, sarlavhaning o'zi ham shu sahifaga
+ *   olib boradigan havola bo'ladi (§37 — "Batafsil" tugmasidan tashqari,
+ *   ma'lumotning o'zini bosish orqali ham ichki sahifaga o'tish imkoniyati).
+ */
+function buildPopupElement(title, rows, detailUrl) {
     const container = document.createElement('div');
     container.className = 'map-popup';
 
@@ -29,10 +36,19 @@ function buildPopupElement(title, rows) {
         const heading = document.createElement('p');
         heading.className = 'map-popup-title';
         heading.appendChild(document.createTextNode(title));
-        container.appendChild(heading);
+
+        if (detailUrl && isSafeUrl(detailUrl)) {
+            const titleLink = document.createElement('a');
+            titleLink.href = detailUrl;
+            titleLink.className = 'map-popup-title-link';
+            titleLink.appendChild(heading);
+            container.appendChild(titleLink);
+        } else {
+            container.appendChild(heading);
+        }
     }
 
-    rows.forEach(({ label, value, href, long }) => {
+    rows.forEach(({ label, value, href, long, newTab }) => {
         if (!value && !href) return;
 
         const row = document.createElement('p');
@@ -47,8 +63,14 @@ function buildPopupElement(title, rows) {
         if (href && isSafeUrl(href)) {
             const link = document.createElement('a');
             link.href = href;
-            link.target = '_blank';
-            link.rel = 'noopener noreferrer';
+            // "Batafsil" — o'zimizning ichki sahifamiz, yangi tabda emas, xuddi
+            // oddiy havoladek shu tabda ochiladi. Faqat tashqi manba (§25)
+            // havolalari yangi tabda ochiladi (foydalanuvchi xaritani
+            // yo'qotmasligi uchun).
+            if (newTab !== false) {
+                link.target = '_blank';
+                link.rel = 'noopener noreferrer';
+            }
             link.className = 'map-popup-link';
             link.appendChild(document.createTextNode(value || "Manbani ko'rish"));
             row.appendChild(link);
@@ -255,8 +277,8 @@ export function initTurkestanMap(containerId, data, options = {}) {
                         { label: 'Yil', value: props.endYear && props.endYear !== props.startYear ? `${props.startYear}–${props.endYear}` : `${props.startYear ?? ''}` },
                         { label: 'Hudud', value: props.region },
                         { label: 'Tavsif', value: props.shortDescription, long: true },
-                        { label: null, value: 'Batafsil', href: props.url },
-                    ]))
+                        { label: null, value: 'Batafsil', href: props.url, newTab: false },
+                    ], props.url))
                     .addTo(map);
             });
 
@@ -270,8 +292,8 @@ export function initTurkestanMap(containerId, data, options = {}) {
                         { label: "Qo'rboshi", value: props.qorboshi },
                         { label: "Qo'zg'olon", value: props.uzgolon },
                         { label: 'Tavsif', value: props.description, long: true },
-                        { label: null, value: 'Batafsil', href: props.url },
-                    ]))
+                        { label: null, value: 'Batafsil', href: props.url, newTab: false },
+                    ], props.url))
                     .addTo(map);
             };
 
