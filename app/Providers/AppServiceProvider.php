@@ -22,7 +22,14 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        if ($this->app->environment('production') || str_starts_with((string) config('app.url'), 'https://')) {
+        // Only force https for the canonical production domain, which sits behind
+        // an external proxy that terminates TLS (no cert on this box — see
+        // DEPLOYMENT.md). Requests that reach nginx directly over plain HTTP
+        // (e.g. the internal 192.168.40.112 vhost) must keep their real scheme,
+        // otherwise asset/canonical URLs point at a https:// port nothing listens on.
+        $productionHost = parse_url((string) config('app.url'), PHP_URL_HOST);
+
+        if ($productionHost && request()->getHost() === $productionHost) {
             \Illuminate\Support\Facades\URL::forceScheme('https');
         }
 
