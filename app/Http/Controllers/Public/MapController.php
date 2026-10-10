@@ -62,8 +62,8 @@ class MapController extends Controller
             'uzgolonlarList' => Uzgolon::published()->orderBy('name')->get(['id', 'name']),
             'filters' => $request->only(['region', 'period', 'qorboshi', 'uzgolon']),
             'seo' => [
-                'title' => "Interaktiv xarita — Qo'rboshilar.uz",
-                'description' => "Turkiston tarixidagi qo'zg'olonlarning interaktiv xaritasi va tarixiy xarita qatlamlari.",
+                'title' => "Interaktiv xarita — Turkiston tarixiy qo'zg'olonlari va hududlari",
+                'description' => "Turkiston milliy ozodlik harakati hududlari, qo'zg'olon markazlari va tarixiy jang maydonlarining interaktiv raqamli SVG xaritasi hamda qatlamlari.",
                 'canonical' => route('xarita'),
             ],
         ]);

@@ -26,8 +26,8 @@ class UzgolonController extends Controller
             'periods' => Period::orderBy('start_year')->get(),
             'filters' => $request->only(['q', 'region', 'period']),
             'seo' => [
-                'title' => "Qo'zg'olonlar — Qo'rboshilar.uz",
-                'description' => "Turkiston tarixidagi muhim qo'zg'olonlar ro'yxati.",
+                'title' => "Qo'zg'olonlar — Turkiston milliy ozodlik harakatlari xronologiyasi",
+                'description' => "Chor Rossiyasi va sovet bosqiniga qarshi Turkiston xalq qo'zg'olonlari, janglar xronologiyasi, sabablari va oqibatlari haqida batafsil ma'lumotlar.",
                 'canonical' => route('qozgolonlar.index'),
             ],
         ]);
@@ -43,7 +43,7 @@ class UzgolonController extends Controller
             'comments' => $this->commentService->approvedFor($uzgolon),
             'seo' => [
                 'title' => "{$uzgolon->name} — Qo'rboshilar.uz",
-                'description' => $uzgolon->meta_description ?? $uzgolon->short_description,
+                'description' => \Illuminate\Support\Str::limit($uzgolon->meta_description ?? $uzgolon->short_description, 160),
                 'canonical' => route('qozgolonlar.show', $uzgolon),
                 'image' => $uzgolon->og_image ?? $uzgolon->coverImageUrl(),
             ],

@@ -17,6 +17,16 @@
         <x-ui.container class="max-w-3xl">
             <x-ui.breadcrumb class="mb-4 justify-center text-paper-dark/70" :items="$breadcrumbItems" />
             <x-seo.breadcrumb-jsonld :items="$breadcrumbItems" />
+            <x-seo.person-jsonld
+                :name="$qorboshi->full_name"
+                :description="Str::limit($qorboshi->meta_description ?? $qorboshi->short_description, 160)"
+                :image="$qorboshi->portraitUrl()"
+                :birth-date="$qorboshi->birth_year"
+                :death-date="$qorboshi->death_year"
+                :birth-place="$qorboshi->birth_place"
+                :death-place="$qorboshi->death_place"
+                :url="route('qorboshilar.show', $qorboshi)"
+            />
 
             <img src="{{ $qorboshi->portraitUrl() }}" alt="{{ $qorboshi->full_name }}" class="mx-auto h-32 w-32 rounded-full object-cover ring-4 ring-gold-600/40">
             <h1 class="mt-4 font-serif text-3xl font-semibold text-paper sm:text-4xl">{{ $qorboshi->full_name }}</h1>

@@ -2,42 +2,68 @@
 <html lang="uz">
 <head>
     @php
+        $rawCanonical = $seo['canonical'] ?? url()->current();
+        if (config('app.url') && str_contains(config('app.url'), 'qorboshilar.uz')) {
+            $path = parse_url($rawCanonical, PHP_URL_PATH) ?? '/';
+            $canonicalUrl = 'https://qorboshilar.uz' . $path;
+        } else {
+            $canonicalUrl = $rawCanonical;
+        }
+
         $seo = array_merge([
-            'title' => "Qo'rboshilar.uz — Turkiston tarixi",
-            'description' => "Turkiston tarixida bosqinchilikka va mustamlakachilikka qarshi kurashgan qo'rboshilar, qo'zg'olonlar, adabiyotlar va videolarni birlashtirgan raqamli tarixiy platforma.",
-            'canonical' => url()->current(),
+            'title' => "Qo'rboshilar.uz — Turkiston milliy ozodlik harakati tarixi",
+            'description' => "Turkiston tarixida mustamlakachilikka qarshi kurashgan qo'rboshilar, qo'zg'olonlar, tarixiy manbalar va videolarni jamlagan raqamli ilmiy ensiklopediya.",
+            'canonical' => $canonicalUrl,
             'image' => asset('logo/og-image-1200x630.png'),
             'type' => 'website',
         ], $seo ?? []);
+
+        $pageTitle = trim($__env->yieldContent('title', $seo['title']));
+        $pageDescription = \Illuminate\Support\Str::limit(trim($__env->yieldContent('meta_description', $seo['description'])), 160);
+        $pageCanonical = trim($__env->yieldContent('canonical', $seo['canonical']));
     @endphp
 
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
 
-    <title>@yield('title', $seo['title'])</title>
-    <meta name="description" content="@yield('meta_description', $seo['description'])">
-    <link rel="canonical" href="@yield('canonical', $seo['canonical'])">
+    <title>{{ $pageTitle }}</title>
+    <meta name="description" content="{{ $pageDescription }}">
+    <link rel="canonical" href="{{ $pageCanonical }}">
 
-    <meta property="og:type" content="{{ $seo['type'] }}">
-    <meta property="og:title" content="@yield('title', $seo['title'])">
-    <meta property="og:description" content="@yield('meta_description', $seo['description'])">
-    <meta property="og:url" content="@yield('canonical', $seo['canonical'])">
+    {{-- Open Graph meta teglar (Facebook, Telegram, LinkedIn) --}}
+    <meta property="og:site_name" content="Qo'rboshilar.uz">
+    <meta property="og:locale" content="uz_UZ">
+    <meta property="og:type" content="{{ $seo['type'] ?? 'website' }}">
+    <meta property="og:title" content="{{ $pageTitle }}">
+    <meta property="og:description" content="{{ $pageDescription }}">
+    <meta property="og:url" content="{{ $pageCanonical }}">
     <meta property="og:image" content="{{ $seo['image'] }}">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:alt" content="{{ $pageTitle }}">
 
+    {{-- Twitter Card meta teglar --}}
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="{{ $pageTitle }}">
+    <meta name="twitter:description" content="{{ $pageDescription }}">
+    <meta name="twitter:image" content="{{ $seo['image'] }}">
+
+    {{-- Favicon va ilova belgilari --}}
+    <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}">
     <link rel="icon" type="image/png" sizes="16x16" href="{{ asset('logo/favicon-16x16.png') }}">
     <link rel="icon" type="image/png" sizes="32x32" href="{{ asset('logo/favicon-32x32.png') }}">
     <link rel="icon" type="image/png" sizes="64x64" href="{{ asset('logo/favicon-64x64.png') }}">
     <link rel="icon" type="image/png" sizes="192x192" href="{{ asset('logo/favicon-192x192.png') }}">
     <link rel="apple-touch-icon" sizes="180x180" href="{{ asset('logo/apple-touch-icon-180x180.png') }}">
 
-    {{-- Production QA §11: faqat aniq qo'llab-quvvatlanadigan schema (WebSite +
-    qidiruv) — soxta historical claim yaratilmaydi. JSON_HEX_* — script-breakout
-    xavfsizligi uchun (§ breadcrumb-jsonld komponentidagi izohga qarang). --}}
+    {{-- Schema.org Structured Data (WebSite + Organization) --}}
     <script type="application/ld+json">
         {!! json_encode([
             '@@context' => 'https://schema.org',
             '@type' => 'WebSite',
             'name' => "Qo'rboshilar.uz",
+            'alternateName' => 'Turkiston Qorboshilari Tarixi',
             'url' => url('/'),
             'potentialAction' => [
                 '@type' => 'SearchAction',
@@ -47,6 +73,16 @@
                 ],
                 'query-input' => 'required name=search_term_string',
             ],
+        ], JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) !!}
+    </script>
+    <script type="application/ld+json">
+        {!! json_encode([
+            '@@context' => 'https://schema.org',
+            '@type' => 'Organization',
+            'name' => "Qo'rboshilar.uz",
+            'url' => url('/'),
+            'logo' => asset('logo/favicon-192x192.png'),
+            'description' => "Turkiston milliy ozodlik harakati va qo'rboshilar tarixi bo'yicha raqamli ilmiy platforma.",
         ], JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) !!}
     </script>
 

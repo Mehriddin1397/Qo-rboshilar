@@ -17,6 +17,14 @@
         <x-ui.container class="max-w-4xl">
             <x-ui.breadcrumb :items="$breadcrumbItems" class="mb-6 text-paper-dark/70" />
             <x-seo.breadcrumb-jsonld :items="$breadcrumbItems" />
+            <x-seo.video-jsonld
+                :name="$video->title"
+                :description="Str::limit($video->meta_description ?? $video->description, 160)"
+                :thumbnail-url="$video->thumbnail_url"
+                :upload-date="$video->created_at"
+                :embed-url="$video->embedUrl()"
+                :url="route('videolar.show', $video)"
+            />
             <h1 class="font-serif text-2xl font-semibold text-paper sm:text-3xl">{{ $video->title }}</h1>
 
             <div class="mt-6 aspect-video overflow-hidden rounded-lg border border-sand/30">

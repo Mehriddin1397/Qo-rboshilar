@@ -24,8 +24,8 @@ class QorboshiController extends Controller
             'regions' => Region::orderBy('name')->get(),
             'filters' => $request->only(['q', 'region']),
             'seo' => [
-                'title' => "Qo'rboshilar — Qo'rboshilar.uz",
-                'description' => "Turkiston ozodligi yo'lida kurashgan qo'rboshilarning to'liq ro'yxati.",
+                'title' => "Qo'rboshilar — Turkiston istiqlolchilik harakati yetakchilari va sarkardalari",
+                'description' => "Turkiston ozodligi yo'lida kurashgan qo'rboshilar va yetakchilarning to'liq biografiyasi, faoliyat yillari va tarixiy hududlari bo'yicha ilmiy katalog.",
                 'canonical' => route('qorboshilar.index'),
             ],
         ]);
@@ -41,7 +41,7 @@ class QorboshiController extends Controller
             'comments' => $this->commentService->approvedFor($qorboshi),
             'seo' => [
                 'title' => "{$qorboshi->full_name} — Qo'rboshilar.uz",
-                'description' => $qorboshi->meta_description ?? $qorboshi->short_description,
+                'description' => \Illuminate\Support\Str::limit($qorboshi->meta_description ?? $qorboshi->short_description, 160),
                 'canonical' => route('qorboshilar.show', $qorboshi),
                 'image' => $qorboshi->og_image ?? ($qorboshi->portrait_path ? $qorboshi->portraitUrl() : null),
             ],

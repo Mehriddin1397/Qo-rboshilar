@@ -11,8 +11,8 @@ class ContactController extends Controller
     {
         return view('pages.contact', [
             'seo' => [
-                'title' => "Bog'lanish — Qo'rboshilar.uz",
-                'description' => "Qo'rboshilar.uz loyihasi bilan bog'lanish yo'llari.",
+                'title' => "Bog'lanish — Qo'rboshilar.uz tahririyati bilan aloqa",
+                'description' => "Qo'rboshilar.uz loyihasi tahririyati bilan bog'lanish, tarixiy materiallar va manbalarni taqdim etish hamda takliflar yuborish uchun aloqa sahifasi.",
                 'canonical' => route('contact'),
             ],
         ]);

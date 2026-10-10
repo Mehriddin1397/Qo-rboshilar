@@ -24,8 +24,8 @@ class LiteratureController extends Controller
             'types' => LiteratureType::cases(),
             'filters' => $request->only(['q', 'type']),
             'seo' => [
-                'title' => "Adabiyotlar — Qo'rboshilar.uz",
-                'description' => "Turkiston tarixiga oid kitoblar, maqolalar va arxiv hujjatlari.",
+                'title' => "Adabiyotlar — Turkiston tarixiga oid kitoblar va ilmiy manbalar",
+                'description' => "Turkiston milliy ozodlik harakati va qo'rboshilar faoliyatiga bag'ishlangan tarixiy kitoblar, ilmiy maqolalar, arxiv hujjatlari va xotiralar to'plami.",
                 'canonical' => route('adabiyotlar.index'),
             ],
         ]);
@@ -41,7 +41,7 @@ class LiteratureController extends Controller
             'comments' => $this->commentService->approvedFor($literature),
             'seo' => [
                 'title' => "{$literature->title} — Qo'rboshilar.uz",
-                'description' => $literature->meta_description ?? $literature->description,
+                'description' => \Illuminate\Support\Str::limit($literature->meta_description ?? $literature->description, 160),
                 'canonical' => route('adabiyotlar.show', $literature),
                 'image' => $literature->og_image ?? $literature->coverUrl(),
             ],

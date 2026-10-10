@@ -17,6 +17,16 @@
         <x-ui.container>
             <x-ui.breadcrumb :items="$breadcrumbItems" class="mb-6" />
             <x-seo.breadcrumb-jsonld :items="$breadcrumbItems" />
+            <x-seo.book-jsonld
+                :name="$literature->title"
+                :author="$literature->author"
+                :description="Str::limit($literature->meta_description ?? $literature->description, 160)"
+                :date-published="$literature->publication_year"
+                :publisher="$literature->publisher"
+                :isbn="$literature->isbn"
+                :image="$literature->coverUrl()"
+                :url="route('adabiyotlar.show', $literature)"
+            />
 
             <div class="grid gap-8 sm:grid-cols-[200px_1fr]">
                 <div>

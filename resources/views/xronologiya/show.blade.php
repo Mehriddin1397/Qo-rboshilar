@@ -17,6 +17,13 @@
         <x-ui.container class="max-w-3xl">
             <x-ui.breadcrumb class="mb-4 justify-center text-paper-dark/70" :items="$breadcrumbItems" />
             <x-seo.breadcrumb-jsonld :items="$breadcrumbItems" />
+            <x-seo.event-jsonld
+                :name="$event->title"
+                :description="Str::limit($event->description, 160)"
+                :start-date="$event->start_year"
+                :end-date="$event->end_year"
+                :url="route('xronologiya.show', $event)"
+            />
 
             <p class="font-serif text-4xl font-semibold text-gold-400">{{ $event->yearRangeLabel() }}</p>
             <h1 class="mt-2 font-serif text-3xl font-semibold text-paper sm:text-4xl">{{ $event->title }}</h1>

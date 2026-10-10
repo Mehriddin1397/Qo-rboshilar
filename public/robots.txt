@@ -1,10 +1,17 @@
 User-agent: *
+Allow: /
+
+# Shaxsiy va boshqaruv bo'limlari (Private & Admin panels)
 Disallow: /admin
+Disallow: /admin/
 Disallow: /kirish
 Disallow: /royxatdan-otish
 Disallow: /profil
 Disallow: /bloglarim
 Disallow: /comments
 Disallow: /qidiruv
+Disallow: /chiqish
+Disallow: /up
 
-Sitemap: /sitemap.xml
+# Sitemap manzili
+Sitemap: https://qorboshilar.uz/sitemap.xml

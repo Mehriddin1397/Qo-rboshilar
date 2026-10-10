@@ -28,6 +28,15 @@
         <x-ui.container class="relative z-10 max-w-3xl">
             <x-ui.breadcrumb class="mb-4 justify-center text-paper-dark/80" :items="$breadcrumbItems" />
             <x-seo.breadcrumb-jsonld :items="$breadcrumbItems" />
+            <x-seo.event-jsonld
+                :name="$uzgolon->name"
+                :description="Str::limit($uzgolon->meta_description ?? $uzgolon->short_description, 160)"
+                :start-date="$uzgolon->start_year"
+                :end-date="$uzgolon->end_year"
+                :location="$uzgolon->historical_location ?? $uzgolon->region?->name"
+                :image="$uzgolon->coverImageUrl()"
+                :url="route('qozgolonlar.show', $uzgolon)"
+            />
 
             <h1 class="font-serif text-3xl font-semibold text-paper sm:text-4xl lg:text-5xl drop-shadow-sm">{{ $uzgolon->name }}</h1>
             <p class="mt-3 text-base sm:text-lg text-paper-dark/90 leading-relaxed drop-shadow-sm">{{ $uzgolon->short_description }}</p>
@@ -303,7 +312,7 @@
                                         :class="current === {{ $index }} ? 'ring-2 ring-gold-600 scale-105 opacity-100' : 'opacity-60 hover:opacity-100'"
                                         class="relative h-16 w-24 shrink-0 overflow-hidden rounded-md border border-sand bg-brown-900 transition-all duration-200"
                                     >
-                                        <img src="{{ $image->url() }}" alt="" class="h-full w-full object-cover">
+                                        <img src="{{ $image->url() }}" alt="{{ $image->alt_text ?? $image->caption ?? $uzgolon->name }}" loading="lazy" class="h-full w-full object-cover">
                                     </button>
                                 @endforeach
                             </div>
@@ -334,7 +343,7 @@
                             </button>
 
                             <div class="max-h-[85vh] max-w-[95vw] flex flex-col items-center">
-                                <img :src="lightboxImage" alt="" class="max-h-[75vh] max-w-full rounded-lg object-contain shadow-2xl">
+                                <img :src="lightboxImage" :alt="lightboxCaption || '{{ $uzgolon->name }}'" class="max-h-[75vh] max-w-full rounded-lg object-contain shadow-2xl">
                                 <p x-show="lightboxCaption" x-text="lightboxCaption" class="mt-3 text-center text-sm sm:text-base text-paper-dark max-w-2xl"></p>
                             </div>
                         </div>

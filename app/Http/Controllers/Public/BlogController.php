@@ -22,8 +22,8 @@ class BlogController extends Controller
             'items' => $this->blogService->paginateForPublic($request),
             'filters' => $request->only(['q']),
             'seo' => [
-                'title' => "Bloglar — Qo'rboshilar.uz",
-                'description' => "Foydalanuvchilar tomonidan yozilgan tarixiy maqolalar.",
+                'title' => "Tarixiy bloglar — Turkiston ozodlik harakati haqida ilmiy maqolalar",
+                'description' => "Tarixchilar va tadqiqotchilar tomonidan yozilgan Turkiston milliy ozodlik harakati, jadidlar va qo'rboshilar davriga oid tahliliy maqolalar va bloglar.",
                 'canonical' => route('bloglar.index'),
             ],
         ]);
@@ -40,7 +40,7 @@ class BlogController extends Controller
             'comments' => $this->commentService->approvedFor($blog),
             'seo' => [
                 'title' => "{$blog->title} — Qo'rboshilar.uz",
-                'description' => $blog->meta_description ?? $blog->excerpt,
+                'description' => \Illuminate\Support\Str::limit($blog->meta_description ?? $blog->excerpt, 160),
                 'canonical' => route('bloglar.show', $blog),
                 'image' => $blog->og_image ?? $blog->coverUrl(),
             ],

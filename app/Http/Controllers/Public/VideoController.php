@@ -24,8 +24,8 @@ class VideoController extends Controller
             'categories' => VideoCategory::cases(),
             'filters' => $request->only(['q', 'category']),
             'seo' => [
-                'title' => "Videolar — Qo'rboshilar.uz",
-                'description' => "Qo'rboshilar va qo'zg'olonlar haqidagi videolar.",
+                'title' => "Videolar — Tarixiy hujjatli filmlar, arxiv tasvirlari va ma'ruzalar",
+                'description' => "Turkiston tarixi, qo'rboshilar harakati va milliy istiqlol kurashi haqidagi hujjatli filmlar, ilmiy ma'ruzalar hamda tarixchilar bilan video suhbatlar.",
                 'canonical' => route('videolar.index'),
             ],
         ]);
@@ -41,7 +41,7 @@ class VideoController extends Controller
             'comments' => $this->commentService->approvedFor($video),
             'seo' => [
                 'title' => "{$video->title} — Qo'rboshilar.uz",
-                'description' => $video->meta_description ?? $video->description,
+                'description' => \Illuminate\Support\Str::limit($video->meta_description ?? $video->description, 160),
                 'canonical' => route('videolar.show', $video),
                 'image' => $video->thumbnailUrl(),
             ],

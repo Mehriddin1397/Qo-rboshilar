@@ -25,8 +25,8 @@ class TimelineEventController extends Controller
             'periods' => Period::orderBy('start_year')->get(),
             'filters' => $request->only(['q', 'period', 'from_year', 'to_year']),
             'seo' => [
-                'title' => "Tarixiy xronologiya — Qo'rboshilar.uz",
-                'description' => "Turkiston tarixidagi muhim voqealar yillar bo'yicha.",
+                'title' => "Tarixiy xronologiya — Turkiston milliy kurashi yilnomasi (1850–1935)",
+                'description' => "1850-yildan 1935-yilgacha Turkistonda yuz bergan muhim tarixiy voqealar, janglar va milliy ozodlik harakatlarining yillar bo'yicha to'liq xronologiyasi.",
                 'canonical' => route('xronologiya.index'),
             ],
         ]);
