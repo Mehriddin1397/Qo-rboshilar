@@ -24,6 +24,17 @@
                     <x-ui.alert type="error" class="mb-6">{{ session('error') }}</x-ui.alert>
                 @endif
 
+                @if ($errors->any())
+                    <x-ui.alert type="error" class="mb-6">
+                        <div class="font-semibold text-base mb-1">Ma'lumotlarni saqlashda xatolik yuz berdi:</div>
+                        <ul class="list-disc list-inside space-y-1 text-sm">
+                            @foreach ($errors->all() as $error)
+                                <li>{{ $error }}</li>
+                            @endforeach
+                        </ul>
+                    </x-ui.alert>
+                @endif
+
                 @yield('content')
             </main>
         </div>

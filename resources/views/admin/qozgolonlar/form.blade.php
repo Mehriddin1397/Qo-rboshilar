@@ -89,6 +89,12 @@
                             </option>
                         @endforeach
                     </select>
+                    @error('qorboshi_ids')
+                        <p class="mt-1 text-sm text-danger">{{ $message }}</p>
+                    @enderror
+                    @error('qorboshi_ids.*')
+                        <p class="mt-1 text-sm text-danger">{{ $message }}</p>
+                    @enderror
                     @if ($qorboshilar->isEmpty())
                         <p class="mt-1 text-xs text-brown-500">Hozircha qo'rboshi kiritilmagan.</p>
                     @endif
@@ -104,6 +110,12 @@
                             </option>
                         @endforeach
                     </select>
+                    @error('literature_ids')
+                        <p class="mt-1 text-sm text-danger">{{ $message }}</p>
+                    @enderror
+                    @error('literature_ids.*')
+                        <p class="mt-1 text-sm text-danger">{{ $message }}</p>
+                    @enderror
                     @if ($literatures->isEmpty())
                         <p class="mt-1 text-xs text-brown-500">Hozircha adabiyot kiritilmagan.</p>
                     @endif
@@ -130,6 +142,9 @@
                 @endif
                 <input type="file" name="cover" accept="image/jpeg,image/png,image/webp" class="mt-2 block text-sm text-brown-700">
                 <p class="mt-1 text-xs text-brown-500">JPG, PNG yoki WEBP, maksimal 20MB.</p>
+                @error('cover')
+                    <p class="mt-1 text-sm text-danger">{{ $message }}</p>
+                @enderror
             </div>
 
             <div class="mt-5 border-t border-sand pt-4">
@@ -146,6 +161,9 @@
                 @endif
                 <input type="file" name="background" accept="image/jpeg,image/png,image/webp" class="mt-2 block text-sm text-brown-700">
                 <p class="mt-1 text-xs text-brown-500">JPG, PNG yoki WEBP, maksimal 20MB.</p>
+                @error('background')
+                    <p class="mt-1 text-sm text-danger">{{ $message }}</p>
+                @enderror
             </div>
 
             @if ($uzgolon->exists && $uzgolon->images->isNotEmpty())
@@ -155,12 +173,10 @@
                         @foreach ($uzgolon->images as $image)
                             <div class="relative">
                                 <img src="{{ $image->url() }}" alt="{{ $image->alt_text }}" class="h-20 w-full rounded-md object-cover">
-                                <form method="POST" action="{{ route('admin.qozgolonlar.images.destroy', [$uzgolon, $image]) }}"
-                                      onsubmit="return confirm('Rasmni o\'chirishni tasdiqlaysizmi?');" class="absolute right-1 top-1">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit" class="rounded-full bg-danger/90 px-1.5 py-0.5 text-xs text-white">&times;</button>
-                                </form>
+                                <button type="submit"
+                                        form="delete-image-{{ $image->id }}"
+                                        title="Rasmni o'chirish"
+                                        class="absolute right-1 top-1 rounded-full bg-danger/90 px-1.5 py-0.5 text-xs text-white shadow hover:bg-danger">&times;</button>
                             </div>
                         @endforeach
                     </div>
@@ -171,6 +187,12 @@
                 <label class="block text-sm font-medium text-brown-900">Yangi galereya rasmlarini qo'shish</label>
                 <input type="file" name="gallery[]" multiple accept="image/jpeg,image/png,image/webp" class="mt-2 block text-sm text-brown-700">
                 <p class="mt-1 text-xs text-brown-500">Bir nechta rasm tanlash mumkin, har biri maksimal 20MB.</p>
+                @error('gallery')
+                    <p class="mt-1 text-sm text-danger">{{ $message }}</p>
+                @enderror
+                @error('gallery.*')
+                    <p class="mt-1 text-sm text-danger">{{ $message }}</p>
+                @enderror
             </div>
         </x-ui.card>
 
@@ -184,6 +206,12 @@
                     </option>
                 @endforeach
             </select>
+            @error('source_reference_ids')
+                <p class="mt-1 text-sm text-danger">{{ $message }}</p>
+            @enderror
+            @error('source_reference_ids.*')
+                <p class="mt-1 text-sm text-danger">{{ $message }}</p>
+            @enderror
             @if ($sourceReferences->isEmpty())
                 <p class="mt-1 text-xs text-brown-500">Hozircha manba kiritilmagan.</p>
             @endif
@@ -194,4 +222,17 @@
             <x-ui.button href="{{ route('admin.qozgolonlar.index') }}" variant="secondary">Bekor qilish</x-ui.button>
         </div>
     </form>
+
+    @if ($uzgolon->exists && $uzgolon->images->isNotEmpty())
+        @foreach ($uzgolon->images as $image)
+            <form id="delete-image-{{ $image->id }}"
+                  method="POST"
+                  action="{{ route('admin.qozgolonlar.images.destroy', [$uzgolon, $image]) }}"
+                  onsubmit="return confirm('Rasmni o\'chirishni tasdiqlaysizmi?');"
+                  class="hidden">
+                @csrf
+                @method('DELETE')
+            </form>
+        @endforeach
+    @endif
 @endsection

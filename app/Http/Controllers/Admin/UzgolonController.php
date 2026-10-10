@@ -58,7 +58,7 @@ class UzgolonController extends Controller
 
         $this->handleUploads($request, $uzgolon);
 
-        return redirect()->route('admin.qozgolonlar.index')->with('status', "\"{$uzgolon->name}\" muvaffaqiyatli qo'shildi.");
+        return redirect()->route('admin.qozgolonlar.index')->with('status', "\"{$uzgolon->name}\" muvaffaqiyatli saqlandi.");
     }
 
     public function show(Uzgolon $qozgolon): View
@@ -93,7 +93,7 @@ class UzgolonController extends Controller
 
         $this->handleUploads($request, $qozgolon);
 
-        return redirect()->route('admin.qozgolonlar.index')->with('status', "\"{$qozgolon->name}\" yangilandi.");
+        return redirect()->route('admin.qozgolonlar.index')->with('status', "\"{$qozgolon->name}\" muvaffaqiyatli saqlandi.");
     }
 
     public function destroy(Uzgolon $qozgolon): RedirectResponse

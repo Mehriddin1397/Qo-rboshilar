@@ -74,6 +74,12 @@
                             </option>
                         @endforeach
                     </select>
+                    @error('uzgolon_ids')
+                        <p class="mt-1 text-sm text-danger">{{ $message }}</p>
+                    @enderror
+                    @error('uzgolon_ids.*')
+                        <p class="mt-1 text-sm text-danger">{{ $message }}</p>
+                    @enderror
                     @if ($uzgolonlar->isEmpty())
                         <p class="mt-1 text-xs text-brown-500">Hozircha qo'zg'olon kiritilmagan.</p>
                     @endif
@@ -89,6 +95,12 @@
                             </option>
                         @endforeach
                     </select>
+                    @error('literature_ids')
+                        <p class="mt-1 text-sm text-danger">{{ $message }}</p>
+                    @enderror
+                    @error('literature_ids.*')
+                        <p class="mt-1 text-sm text-danger">{{ $message }}</p>
+                    @enderror
                     @if ($literatures->isEmpty())
                         <p class="mt-1 text-xs text-brown-500">Hozircha adabiyot kiritilmagan.</p>
                     @endif
@@ -113,6 +125,9 @@
                 <img src="{{ $qorboshi->portraitUrl() }}" alt="" class="mt-2 h-24 w-24 rounded-full object-cover">
                 <input type="file" name="portrait" accept="image/jpeg,image/png,image/webp" class="mt-2 block text-sm text-brown-700">
                 <p class="mt-1 text-xs text-brown-500">JPG, PNG yoki WEBP, maksimal 20MB.</p>
+                @error('portrait')
+                    <p class="mt-1 text-sm text-danger">{{ $message }}</p>
+                @enderror
             </div>
 
             @if ($qorboshi->exists && $qorboshi->images->isNotEmpty())
@@ -123,12 +138,10 @@
                             <div class="relative">
                                 <img src="{{ $image->url() }}" alt="{{ $image->alt_text }}"
                                      class="h-20 w-full rounded-md object-cover">
-                                <form method="POST" action="{{ route('admin.qorboshilar.images.destroy', [$qorboshi, $image]) }}"
-                                      onsubmit="return confirm('Rasmni o\'chirishni tasdiqlaysizmi?');" class="absolute right-1 top-1">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit" class="rounded-full bg-danger/90 px-1.5 py-0.5 text-xs text-white">&times;</button>
-                                </form>
+                                <button type="submit"
+                                        form="delete-qorboshi-image-{{ $image->id }}"
+                                        title="Rasmni o'chirish"
+                                        class="absolute right-1 top-1 rounded-full bg-danger/90 px-1.5 py-0.5 text-xs text-white shadow hover:bg-danger">&times;</button>
                             </div>
                         @endforeach
                     </div>
@@ -139,6 +152,12 @@
                 <label class="block text-sm font-medium text-brown-900">Yangi galereya rasmlarini qo'shish</label>
                 <input type="file" name="gallery[]" multiple accept="image/jpeg,image/png,image/webp" class="mt-2 block text-sm text-brown-700">
                 <p class="mt-1 text-xs text-brown-500">Bir nechta rasm tanlash mumkin, har biri maksimal 20MB.</p>
+                @error('gallery')
+                    <p class="mt-1 text-sm text-danger">{{ $message }}</p>
+                @enderror
+                @error('gallery.*')
+                    <p class="mt-1 text-sm text-danger">{{ $message }}</p>
+                @enderror
             </div>
         </x-ui.card>
 
@@ -152,6 +171,12 @@
                     </option>
                 @endforeach
             </select>
+            @error('source_reference_ids')
+                <p class="mt-1 text-sm text-danger">{{ $message }}</p>
+            @enderror
+            @error('source_reference_ids.*')
+                <p class="mt-1 text-sm text-danger">{{ $message }}</p>
+            @enderror
             @if ($sourceReferences->isEmpty())
                 <p class="mt-1 text-xs text-brown-500">
                     Hozircha manba kiritilmagan. Manbalar keyingi bosqichda alohida boshqariladigan bo'ladi.
@@ -164,4 +189,17 @@
             <x-ui.button href="{{ route('admin.qorboshilar.index') }}" variant="secondary">Bekor qilish</x-ui.button>
         </div>
     </form>
+
+    @if ($qorboshi->exists && $qorboshi->images->isNotEmpty())
+        @foreach ($qorboshi->images as $image)
+            <form id="delete-qorboshi-image-{{ $image->id }}"
+                  method="POST"
+                  action="{{ route('admin.qorboshilar.images.destroy', [$qorboshi, $image]) }}"
+                  onsubmit="return confirm('Rasmni o\'chirishni tasdiqlaysizmi?');"
+                  class="hidden">
+                @csrf
+                @method('DELETE')
+            </form>
+        @endforeach
+    @endif
 @endsection
