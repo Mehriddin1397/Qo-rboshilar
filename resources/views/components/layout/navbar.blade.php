@@ -69,7 +69,7 @@
 
         <div class="hidden items-center gap-3 lg:flex">
             <x-ui.search-bar compact />
-            <x-ui.font-size-adjuster variant="dropdown" />
+            <x-ui.font-size-adjuster />
 
             @auth
                 @php $currentUser = auth()->user(); @endphp
@@ -100,7 +100,7 @@
         </div>
 
         <div class="flex items-center gap-2 lg:hidden">
-            <x-ui.font-size-adjuster variant="dropdown" />
+            <x-ui.font-size-adjuster />
 
             <button @click="mobileOpen = !mobileOpen" aria-label="Menyu" class="rounded-md border border-sand bg-paper-dark/40 p-1.5 text-brown-900 transition hover:bg-paper-dark">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" class="h-6 w-6">
@@ -114,7 +114,6 @@
     <div x-show="mobileOpen" x-cloak x-transition class="border-t border-sand bg-paper lg:hidden">
         <x-ui.container class="flex flex-col gap-2 py-4">
             <x-ui.search-bar />
-            <x-ui.font-size-adjuster variant="mobile" />
 
             @foreach ($directLinks as $href => $label)
                 <a href="{{ $href }}"
