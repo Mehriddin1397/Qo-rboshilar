@@ -67,8 +67,9 @@
             </x-layout.nav-dropdown>
         </nav>
 
-        <div class="hidden items-center gap-4 lg:flex">
+        <div class="hidden items-center gap-3 lg:flex">
             <x-ui.search-bar compact />
+            <x-ui.font-size-adjuster variant="dropdown" />
 
             @auth
                 @php $currentUser = auth()->user(); @endphp
@@ -98,17 +99,22 @@
             @endauth
         </div>
 
-        <button @click="mobileOpen = !mobileOpen" aria-label="Menyu" class="text-brown-900 lg:hidden">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" class="h-6 w-6">
-                <path x-show="!mobileOpen" d="M4 6h16M4 12h16M4 18h16" stroke-linecap="round" />
-                <path x-show="mobileOpen" x-cloak d="M6 6l12 12M18 6 6 18" stroke-linecap="round" />
-            </svg>
-        </button>
+        <div class="flex items-center gap-2 lg:hidden">
+            <x-ui.font-size-adjuster variant="dropdown" />
+
+            <button @click="mobileOpen = !mobileOpen" aria-label="Menyu" class="rounded-md border border-sand bg-paper-dark/40 p-1.5 text-brown-900 transition hover:bg-paper-dark">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" class="h-6 w-6">
+                    <path x-show="!mobileOpen" d="M4 6h16M4 12h16M4 18h16" stroke-linecap="round" />
+                    <path x-show="mobileOpen" x-cloak d="M6 6l12 12M18 6 6 18" stroke-linecap="round" />
+                </svg>
+            </button>
+        </div>
     </x-ui.container>
 
     <div x-show="mobileOpen" x-cloak x-transition class="border-t border-sand bg-paper lg:hidden">
-        <x-ui.container class="flex flex-col gap-1 py-4">
-            <x-ui.search-bar class="mb-2" />
+        <x-ui.container class="flex flex-col gap-2 py-4">
+            <x-ui.search-bar />
+            <x-ui.font-size-adjuster variant="mobile" />
 
             @foreach ($directLinks as $href => $label)
                 <a href="{{ $href }}"

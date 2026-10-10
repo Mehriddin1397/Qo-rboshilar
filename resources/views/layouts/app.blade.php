@@ -86,6 +86,17 @@
         ], JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) !!}
     </script>
 
+    <script>
+        (function() {
+            try {
+                var s = localStorage.getItem('qorboshilar_font_size');
+                if (s && s !== '100%') {
+                    document.documentElement.style.fontSize = s;
+                }
+            } catch (e) {}
+        })();
+    </script>
+
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <body class="min-h-screen bg-paper text-ink font-sans antialiased flex flex-col">
