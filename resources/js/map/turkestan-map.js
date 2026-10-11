@@ -285,9 +285,13 @@ export function initTurkestanMap(containerId, data, options = {}) {
             const openHistoricalLayerPopup = (event) => {
                 const props = event.features[0].properties;
                 const title = props.name || props.title || 'Tarixiy qatlam';
-                new Popup({ closeButton: true, maxWidth: '300px' })
+                const rows = [];
+                if (props.sourceUrl) {
+                    rows.push({ label: null, value: 'Manba →', href: props.sourceUrl, newTab: true });
+                }
+                new Popup({ closeButton: true, maxWidth: '220px' })
                     .setLngLat(event.lngLat)
-                    .setDOMContent(buildPopupElement(title, historicalFeaturePopupRows(props)))
+                    .setDOMContent(buildPopupElement(title, rows))
                     .addTo(map);
             };
 
@@ -297,45 +301,36 @@ export function initTurkestanMap(containerId, data, options = {}) {
 
             map.on('click', 'historical-regions-fill', (event) => {
                 const props = event.features[0].properties;
-                new Popup({ closeButton: true, maxWidth: '300px' })
+                const rows = [];
+                if (props.sourceUrl) {
+                    rows.push({ label: null, value: 'Manba →', href: props.sourceUrl, newTab: true });
+                }
+                new Popup({ closeButton: true, maxWidth: '220px' })
                     .setLngLat(event.lngLat)
-                    .setDOMContent(buildPopupElement(props.name, historicalFeaturePopupRows(props)))
-                    .addTo(map);
-            });
-
-            map.on('click', 'historical-layers-line', (event) => {
-                const props = event.features[0].properties;
-                new Popup({ closeButton: true, maxWidth: '300px' })
-                    .setLngLat(event.lngLat)
-                    .setDOMContent(buildPopupElement(props.name, historicalFeaturePopupRows(props)))
+                    .setDOMContent(buildPopupElement(props.name, rows))
                     .addTo(map);
             });
 
             map.on('click', 'uprising-markers-points', (event) => {
                 const props = event.features[0].properties;
-                new Popup({ closeButton: true, maxWidth: '280px' })
+                const rows = [];
+                if (props.url) {
+                    rows.push({ label: null, value: 'Batafsil →', href: props.url, newTab: false });
+                }
+                new Popup({ closeButton: true, maxWidth: '220px' })
                     .setLngLat(event.lngLat)
-                    .setDOMContent(buildPopupElement(props.title, [
-                        { label: 'Yil', value: props.endYear && props.endYear !== props.startYear ? `${props.startYear}–${props.endYear}` : `${props.startYear ?? ''}` },
-                        { label: 'Hudud', value: props.region },
-                        { label: 'Tavsif', value: props.shortDescription, long: true },
-                        { label: null, value: 'Batafsil', href: props.url, newTab: false },
-                    ], props.url))
+                    .setDOMContent(buildPopupElement(props.title, rows, props.url))
                     .addTo(map);
             });
 
             const openTimelineEventPopup = (lngLat, props) => {
-                new Popup({ closeButton: true, maxWidth: '280px' })
+                const rows = [];
+                if (props.url) {
+                    rows.push({ label: null, value: 'Batafsil →', href: props.url, newTab: false });
+                }
+                new Popup({ closeButton: true, maxWidth: '220px' })
                     .setLngLat(lngLat)
-                    .setDOMContent(buildPopupElement(props.title, [
-                        { label: 'Yil', value: props.yearRange },
-                        { label: 'Davr', value: props.period },
-                        { label: 'Aniqlik', value: props.accuracyLabel },
-                        { label: "Qo'rboshi", value: props.qorboshi },
-                        { label: "Qo'zg'olon", value: props.uzgolon },
-                        { label: 'Tavsif', value: props.description, long: true },
-                        { label: null, value: 'Batafsil', href: props.url, newTab: false },
-                    ], props.url))
+                    .setDOMContent(buildPopupElement(props.title, rows, props.url))
                     .addTo(map);
             };
 
