@@ -64,7 +64,7 @@
                     mapError: null,
                     loaded: false,
                     showRegions: true,
-                    showBoundaries: false,
+                    showBoundaries: true,
                     showMarkers: true,
                     showTimeline: true,
                     showRaster: true,
@@ -91,7 +91,7 @@
                     },
                     toggleBoundaries() {
                         this.showBoundaries = !this.showBoundaries;
-                        this.mapInstance?.setLayerVisibility('historical-layers-line', this.showBoundaries);
+                        this.mapInstance?.setLayerVisibility(['historical-layers-line', 'historical-layers-fill', 'historical-layers-points'], this.showBoundaries);
                     },
                     toggleMarkers() {
                         this.showMarkers = !this.showMarkers;

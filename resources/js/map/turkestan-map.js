@@ -177,17 +177,39 @@ export function initTurkestanMap(containerId, data, options = {}) {
                 },
             });
 
-            // 2) Tarixiy chegaralar/qatlamlar (line-only, standart holatda o'chiq).
+            // 2) Tarixiy qatlamlar (chiziqlar, poligonlar va nuqtalar).
             map.addSource('historical-layers', { type: 'geojson', data: historicalLayers });
+            map.addLayer({
+                id: 'historical-layers-fill',
+                type: 'fill',
+                source: 'historical-layers',
+                filter: ['any', ['==', '$type', 'Polygon']],
+                paint: {
+                    'fill-color': BRAND_BROWN,
+                    'fill-opacity': 0.15,
+                },
+            });
             map.addLayer({
                 id: 'historical-layers-line',
                 type: 'line',
                 source: 'historical-layers',
-                layout: { visibility: 'none' },
+                filter: ['any', ['==', '$type', 'LineString'], ['==', '$type', 'Polygon']],
                 paint: {
                     'line-color': BRAND_BROWN,
                     'line-width': 2,
                     'line-dasharray': accuracyDasharray,
+                },
+            });
+            map.addLayer({
+                id: 'historical-layers-points',
+                type: 'circle',
+                source: 'historical-layers',
+                filter: ['==', '$type', 'Point'],
+                paint: {
+                    'circle-radius': 7,
+                    'circle-color': BRAND_BROWN,
+                    'circle-stroke-width': 2,
+                    'circle-stroke-color': BRAND_GOLD,
                 },
             });
 
@@ -246,12 +268,32 @@ export function initTurkestanMap(containerId, data, options = {}) {
             });
 
             // Popup + cursor xatti-harakati.
-            const interactiveLayers = ['historical-regions-fill', 'historical-layers-line', 'timeline-events-points', 'uprising-markers-points'];
+            const interactiveLayers = [
+                'historical-regions-fill',
+                'historical-layers-line',
+                'historical-layers-fill',
+                'historical-layers-points',
+                'timeline-events-points',
+                'uprising-markers-points',
+            ];
 
             interactiveLayers.forEach((layerId) => {
                 map.on('mouseenter', layerId, () => { map.getCanvas().style.cursor = 'pointer'; });
                 map.on('mouseleave', layerId, () => { map.getCanvas().style.cursor = ''; });
             });
+
+            const openHistoricalLayerPopup = (event) => {
+                const props = event.features[0].properties;
+                const title = props.name || props.title || 'Tarixiy qatlam';
+                new Popup({ closeButton: true, maxWidth: '300px' })
+                    .setLngLat(event.lngLat)
+                    .setDOMContent(buildPopupElement(title, historicalFeaturePopupRows(props)))
+                    .addTo(map);
+            };
+
+            map.on('click', 'historical-layers-line', openHistoricalLayerPopup);
+            map.on('click', 'historical-layers-fill', openHistoricalLayerPopup);
+            map.on('click', 'historical-layers-points', openHistoricalLayerPopup);
 
             map.on('click', 'historical-regions-fill', (event) => {
                 const props = event.features[0].properties;
