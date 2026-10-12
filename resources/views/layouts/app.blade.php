@@ -10,13 +10,17 @@
             $canonicalUrl = $rawCanonical;
         }
 
+        $rawImage = $seo['image'] ?? asset('logo/og-image-1200x630.png');
+        $seoImage = $rawImage ? (str_starts_with($rawImage, 'http') ? $rawImage : url($rawImage)) : asset('logo/og-image-1200x630.png');
+
         $seo = array_merge([
             'title' => "Qo'rboshilar.uz — Turkiston milliy ozodlik harakati tarixi",
             'description' => "Turkiston tarixida mustamlakachilikka qarshi kurashgan qo'rboshilar, qo'zg'olonlar, tarixiy manbalar va videolarni jamlagan raqamli ilmiy ensiklopediya.",
             'canonical' => $canonicalUrl,
-            'image' => asset('logo/og-image-1200x630.png'),
+            'image' => $seoImage,
             'type' => 'website',
         ], $seo ?? []);
+        $seo['image'] = $seoImage;
 
         $pageTitle = trim($__env->yieldContent('title', $seo['title']));
         $pageDescription = \Illuminate\Support\Str::limit(trim($__env->yieldContent('meta_description', $seo['description'])), 160);
