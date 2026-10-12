@@ -75,6 +75,11 @@ class Uzgolon extends Model
         return $this->cover_image ? Storage::disk('public')->url($this->cover_image) : null;
     }
 
+    public function coverUrl(): ?string
+    {
+        return $this->coverImageUrl();
+    }
+
     public function backgroundImageUrl(): ?string
     {
         return $this->background_image ? Storage::disk('public')->url($this->background_image) : null;

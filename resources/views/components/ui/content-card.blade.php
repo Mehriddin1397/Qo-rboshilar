@@ -1,9 +1,17 @@
-@props(['title', 'meta' => null, 'excerpt' => null, 'image' => null, 'href' => null])
+@props(['title', 'meta' => null, 'excerpt' => null, 'image' => null, 'href' => null, 'aspect' => 'default'])
+
+@php
+    $imageContainerClass = match($aspect) {
+        'portrait', '3/4' => 'aspect-[3/4] w-full',
+        'square', '1/1' => 'aspect-square w-full',
+        default => 'h-48 w-full',
+    };
+@endphp
 
 <article {{ $attributes->class(['group flex flex-col overflow-hidden rounded-lg border border-sand bg-white shadow-sm transition hover:border-gold-600 hover:shadow-md']) }}>
-    <a href="{{ $href ?? '#' }}" class="flex h-40 items-center justify-center overflow-hidden bg-paper-dark">
+    <a href="{{ $href ?? '#' }}" class="flex {{ $imageContainerClass }} items-center justify-center overflow-hidden bg-paper-dark">
         @if ($image)
-            <img src="{{ $image }}" alt="{{ $title }}" loading="lazy" class="h-full w-full object-cover transition duration-300 group-hover:scale-[1.03]">
+            <img src="{{ $image }}" alt="{{ $title }}" loading="lazy" class="h-full w-full object-cover object-top transition duration-300 group-hover:scale-[1.03]">
         @else
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"
                  class="h-10 w-10 text-brown-500/40">

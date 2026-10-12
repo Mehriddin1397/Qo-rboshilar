@@ -83,6 +83,7 @@
                             :meta="$qorboshi->region?->name"
                             :excerpt="$qorboshi->short_description"
                             :image="$qorboshi->portraitUrl()"
+                            aspect="portrait"
                             :href="route('qorboshilar.show', $qorboshi)"
                         />
                     @endforeach

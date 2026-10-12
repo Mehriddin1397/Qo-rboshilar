@@ -28,7 +28,7 @@
                 :url="route('qorboshilar.show', $qorboshi)"
             />
 
-            <img src="{{ $qorboshi->portraitUrl() }}" alt="{{ $qorboshi->full_name }}" class="mx-auto h-32 w-32 rounded-full object-cover ring-4 ring-gold-600/40">
+            <img src="{{ $qorboshi->portraitUrl() }}" alt="{{ $qorboshi->full_name }}" class="mx-auto w-40 sm:w-48 aspect-[3/4] rounded-xl object-cover object-top shadow-xl ring-4 ring-gold-600/40">
             <h1 class="mt-4 font-serif text-3xl font-semibold text-paper sm:text-4xl">{{ $qorboshi->full_name }}</h1>
             <p class="mt-2 text-paper-dark/80">{{ $qorboshi->short_description }}</p>
 
@@ -84,7 +84,13 @@
                         <x-ui.section-header title="Qatnashgan qo'zg'olonlar" />
                         <div class="mt-4 grid gap-4 sm:grid-cols-2">
                             @foreach ($qorboshi->uzgolonlar as $uzgolon)
-                                <x-ui.content-card :title="$uzgolon->name" :meta="$uzgolon->start_year" :excerpt="$uzgolon->short_description" :href="route('qozgolonlar.show', $uzgolon)" />
+                                <x-ui.content-card
+                                    :title="$uzgolon->name"
+                                    :meta="$uzgolon->start_year"
+                                    :excerpt="$uzgolon->short_description"
+                                    :image="$uzgolon->coverImageUrl()"
+                                    :href="route('qozgolonlar.show', $uzgolon)"
+                                />
                             @endforeach
                         </div>
                     </section>
