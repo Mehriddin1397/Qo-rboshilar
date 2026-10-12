@@ -288,7 +288,7 @@
                         <h2 class="font-serif text-lg font-semibold text-brown-900">Boshqa qo'rboshilar</h2>
                         <div class="mt-4 space-y-4">
                             @foreach ($related as $item)
-                                <x-ui.content-card :title="$item->full_name" :meta="$item->region?->name" :image="$item->portraitUrl()" :href="route('qorboshilar.show', $item)" />
+                                <x-ui.content-card :title="$item->full_name" :meta="$item->region?->name" :image="$item->portraitUrl()" aspect="portrait" :href="route('qorboshilar.show', $item)" />
                             @endforeach
                         </div>
                     </div>

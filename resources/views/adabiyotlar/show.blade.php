@@ -81,7 +81,7 @@
                         <x-ui.section-header title="Bog'liq qo'rboshilar" />
                         <div class="mt-4 grid gap-4 sm:grid-cols-2">
                             @foreach ($literature->qorboshilar as $qorboshi)
-                                <x-ui.content-card :title="$qorboshi->full_name" :meta="$qorboshi->region?->name" :image="$qorboshi->portraitUrl()" :href="route('qorboshilar.show', $qorboshi)" />
+                                <x-ui.content-card :title="$qorboshi->full_name" :meta="$qorboshi->region?->name" :image="$qorboshi->portraitUrl()" aspect="portrait" :href="route('qorboshilar.show', $qorboshi)" />
                             @endforeach
                         </div>
                     </section>

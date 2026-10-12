@@ -48,7 +48,7 @@
                         <x-ui.section-header title="Bog'liq materiallar" />
                         <div class="mt-4 grid gap-4 sm:grid-cols-2">
                             @if ($video->qorboshi)
-                                <x-ui.content-card :title="$video->qorboshi->full_name" meta="Qo'rboshi" :image="$video->qorboshi->portraitUrl()" :href="route('qorboshilar.show', $video->qorboshi)" />
+                                <x-ui.content-card :title="$video->qorboshi->full_name" meta="Qo'rboshi" :image="$video->qorboshi->portraitUrl()" aspect="portrait" :href="route('qorboshilar.show', $video->qorboshi)" />
                             @endif
                             @if ($video->uzgolon)
                                 <x-ui.content-card :title="$video->uzgolon->name" meta="Qo'zg'olon" :image="$video->uzgolon->coverImageUrl()" :href="route('qozgolonlar.show', $video->uzgolon)" />

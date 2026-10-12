@@ -55,7 +55,7 @@
                         <x-ui.section-header title="Bog'liq tarixiy materiallar" />
                         <div class="mt-4 grid gap-4 sm:grid-cols-2">
                             @foreach ($blog->qorboshilar as $qorboshi)
-                                <x-ui.content-card :title="$qorboshi->full_name" meta="Qo'rboshi" :image="$qorboshi->portraitUrl()" :href="route('qorboshilar.show', $qorboshi)" />
+                                <x-ui.content-card :title="$qorboshi->full_name" meta="Qo'rboshi" :image="$qorboshi->portraitUrl()" aspect="portrait" :href="route('qorboshilar.show', $qorboshi)" />
                             @endforeach
                             @foreach ($blog->uzgolonlar as $uzgolon)
                                 <x-ui.content-card :title="$uzgolon->name" meta="Qo'zg'olon" :image="$uzgolon->coverImageUrl()" :href="route('qozgolonlar.show', $uzgolon)" />
