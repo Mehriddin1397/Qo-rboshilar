@@ -142,7 +142,8 @@
                             <button
                                 type="button"
                                 @click="closeLightbox()"
-                                class="absolute top-4 right-4 rounded-full bg-paper/10 p-2 text-paper hover:bg-paper/20 transition focus:outline-none"
+                                class="fixed top-4 right-4 z-55 rounded-full bg-paper/15 p-2.5 text-paper hover:bg-paper/30 hover:text-gold-400 transition focus:outline-none"
+                                style="position: fixed; top: 1rem; right: 1rem; z-index: 55;"
                                 aria-label="Yopish"
                             >
                                 <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -150,42 +151,54 @@
                                 </svg>
                             </button>
 
-                            {{-- Oldingi surat tugmasi --}}
-                            <template x-if="images.length > 1">
-                                <button
-                                    type="button"
-                                    @click="prev()"
-                                    class="absolute left-4 top-1/2 -translate-y-1/2 rounded-full bg-paper/10 p-3 text-paper hover:bg-paper/20 transition focus:outline-none"
-                                    aria-label="Oldingi surat"
-                                >
-                                    <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
-                                    </svg>
-                                </button>
-                            </template>
+                            {{-- Oldingi surat tugmasi (chap chekkada) --}}
+                            <button
+                                x-show="images.length > 1"
+                                type="button"
+                                @click.stop="prev()"
+                                class="fixed left-3 sm:left-6 top-1/2 -translate-y-1/2 z-55 rounded-full bg-paper/15 hover:bg-gold-500 hover:text-brown-950 p-3 text-paper shadow-xl backdrop-blur-md transition-all focus:outline-none"
+                                style="position: fixed; left: 1rem; top: 50%; transform: translateY(-50%); z-index: 55;"
+                                aria-label="Oldingi surat"
+                            >
+                                <svg class="h-6 w-6 sm:h-7 sm:w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7" />
+                                </svg>
+                            </button>
 
-                            {{-- Keyingi surat tugmasi --}}
-                            <template x-if="images.length > 1">
-                                <button
-                                    type="button"
-                                    @click="next()"
-                                    class="absolute right-4 top-1/2 -translate-y-1/2 rounded-full bg-paper/10 p-3 text-paper hover:bg-paper/20 transition focus:outline-none"
-                                    aria-label="Keyingi surat"
-                                >
-                                    <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-                                    </svg>
-                                </button>
-                            </template>
+                            {{-- Keyingi surat tugmasi (o'ng chekkada) --}}
+                            <button
+                                x-show="images.length > 1"
+                                type="button"
+                                @click.stop="next()"
+                                class="fixed right-3 sm:right-6 top-1/2 -translate-y-1/2 z-55 rounded-full bg-paper/15 hover:bg-gold-500 hover:text-brown-950 p-3 text-paper shadow-xl backdrop-blur-md transition-all focus:outline-none"
+                                style="position: fixed; right: 1rem; top: 50%; transform: translateY(-50%); z-index: 55;"
+                                aria-label="Keyingi surat"
+                            >
+                                <svg class="h-6 w-6 sm:h-7 sm:w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7" />
+                                </svg>
+                            </button>
 
-                            {{-- Asosiy katta rasm va tavsif --}}
-                            <div class="flex max-h-[85vh] max-w-[95vw] flex-col items-center">
-                                <img :src="lightboxImage" :alt="lightboxCaption || '{{ $qorboshi->full_name }}'" class="max-h-[75vh] max-w-full rounded-lg object-contain shadow-2xl">
-                                <div class="mt-3 flex items-center justify-between w-full max-w-2xl px-2">
-                                    <p x-show="lightboxCaption" x-text="lightboxCaption" class="text-center text-sm sm:text-base text-paper-dark flex-1"></p>
-                                    <template x-if="images.length > 1">
-                                        <span class="text-xs text-paper-dark/60 ml-2" x-text="(currentIndex + 1) + ' / ' + images.length"></span>
-                                    </template>
+                            {{-- Asosiy katta rasm va tavsif paneli --}}
+                            <div class="relative flex max-h-[85vh] max-w-[90vw] sm:max-w-4xl flex-col items-center select-none" @click.stop>
+                                <img :src="lightboxImage" :alt="lightboxCaption || '{{ $qorboshi->full_name }}'" class="max-h-[70vh] sm:max-h-[75vh] max-w-full rounded-lg object-contain shadow-2xl">
+                                
+                                <div class="mt-3 flex flex-wrap items-center justify-between gap-3 w-full px-2 text-paper">
+                                    <p x-show="lightboxCaption" x-text="lightboxCaption" class="text-xs sm:text-sm text-paper-dark flex-1 line-clamp-2"></p>
+                                    
+                                    <div x-show="images.length > 1" class="flex items-center gap-2 ml-auto shrink-0 bg-paper/10 px-3 py-1 rounded-full text-xs text-paper-dark/90">
+                                        <button type="button" @click.stop="prev()" class="hover:text-gold-400 p-1 transition" title="Oldingi surat">
+                                            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7" />
+                                            </svg>
+                                        </button>
+                                        <span class="font-mono" x-text="(currentIndex + 1) + ' / ' + images.length"></span>
+                                        <button type="button" @click.stop="next()" class="hover:text-gold-400 p-1 transition" title="Keyingi surat">
+                                            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7" />
+                                            </svg>
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
                         </div>
